@@ -23,7 +23,7 @@ export default function Navbar() {
   const isActive = (href: string) => pathname === href;
 
   return (
-    <nav className='w-full bg-[#000000] border-b border-gray-800'>
+    <nav className='w-full bg-[#000000]'>
       <div className='max-w-7xl mx-auto'>
         <div className='flex items-center justify-between h-[120px]'>
           {/* Logo */}
