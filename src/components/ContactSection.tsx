@@ -136,7 +136,7 @@ export default function ContactSection() {
                 />
               </div>
 
-              <div className='absolute -top-10 left-1/2 transform -translate-x-1/2 z- flex justify-center'>
+              <div className='absolute -top-20 left-1/2 transform -translate-x-1/2 z- flex justify-center'>
                 <Image
                   src='/contact-shadow.svg'
                   alt='Football Player'

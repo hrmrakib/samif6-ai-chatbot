@@ -7,6 +7,7 @@ import {
   Instagram,
   ExternalLink,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 const navigationLinks = [
@@ -58,34 +59,37 @@ export default function Footer() {
   };
 
   return (
-    <footer className='bg-black text-white py-16 lg:py-20'>
+    <footer className='bg-black text-white py-16 lg:pt-20 lg:pb-10'>
       <div className='container mx-auto px-4'>
         <div className='text-center space-y-8'>
           {/* Logo */}
-          <div className='mb-8'>
+          <div className='flex items-center justify-center gap-10 mb-8'>
             <Link href='/' className='inline-block'>
-              <div className='text-white font-bold text-2xl md:text-3xl'>
-                <span className='text-3xl md:text-4xl'>🏈</span>
-                <span className='ml-3 font-script'>Global Football Vault</span>
-              </div>
+              <Image
+                src='/logo.svg'
+                alt='Global Football Vault Logo'
+                className='h-12 md:h-16 mx-auto'
+                width={140}
+                height={140}
+              />
             </Link>
-          </div>
 
-          {/* Social Media Icons */}
-          <div className='flex justify-center items-center gap-6 md:gap-8'>
-            {socialLinks.map((social) => {
-              const IconComponent = social.icon;
-              return (
-                <button
-                  key={social.name}
-                  onClick={() => handleSocialClick(social.name, social.href)}
-                  className={`text-gray-400 ${social.color} transition-colors duration-300 hover:scale-110 transform`}
-                  aria-label={`Follow us on ${social.name}`}
-                >
-                  <IconComponent className='w-6 h-6 md:w-7 md:h-7' />
-                </button>
-              );
-            })}
+            {/* Social Media Icons */}
+            <div className='flex justify-center items-center gap-6 md:gap-8'>
+              {socialLinks.map((social) => {
+                const IconComponent = social.icon;
+                return (
+                  <button
+                    key={social.name}
+                    onClick={() => handleSocialClick(social.name, social.href)}
+                    className={`text-gray-400 ${social.color} transition-colors duration-300 hover:scale-110 transform`}
+                    aria-label={`Follow us on ${social.name}`}
+                  >
+                    <IconComponent className='w-6 h-6 md:w-7 md:h-7' />
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Navigation Links */}
@@ -119,7 +123,7 @@ export default function Footer() {
           </div>
 
           {/* Newsletter Signup */}
-          <div className='bg-gray-900 rounded-lg p-6 md:p-8 max-w-2xl mx-auto'>
+          {/* <div className='bg-gray-900 rounded-lg p-6 md:p-8 max-w-2xl mx-auto'>
             <h3 className='text-lg md:text-xl font-semibold text-white mb-4'>
               Stay Updated
             </h3>
@@ -141,10 +145,10 @@ export default function Footer() {
                 <ExternalLink className='w-4 h-4' />
               </button>
             </div>
-          </div>
+          </div> */}
 
           {/* Additional Links */}
-          <div className='border-t border-gray-800 pt-8'>
+          {/* <div className='border-t border-gray-800 pt-8'>
             <div className='flex flex-wrap justify-center gap-6 md:gap-8 mb-6'>
               <Link
                 href='/privacy'
@@ -171,7 +175,7 @@ export default function Footer() {
                 FAQ
               </Link>
             </div>
-          </div>
+          </div> */}
 
           {/* Copyright */}
           <div className='border-t border-gray-800 pt-6'>
