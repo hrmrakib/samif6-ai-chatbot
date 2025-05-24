@@ -6,6 +6,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import Image from "next/image";
 
 const navigationLinks = [
   { name: "Home", href: "/" },
@@ -19,16 +20,19 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className='bg-gray-900 border-b border-gray-800'>
+    <nav className='fixed top-0 left-0 md:h-[120px] w-full bg-gray-900 border-b border-gray-800'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex items-center justify-between h-16'>
           {/* Logo */}
           <div className='flex-shrink-0'>
             <Link href='/' className='flex items-center'>
-              <div className='text-white font-bold text-xl'>
-                <span className='text-2xl'>🏈</span>
-                <span className='ml-2'>Rebel Football Vault</span>
-              </div>
+              <Image
+                src='/logo.svg'
+                alt='Logo'
+                width={40}
+                height={40}
+                className='h-10 w-10'
+              />
             </Link>
           </div>
 
