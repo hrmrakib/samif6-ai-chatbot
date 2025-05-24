@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 const navigationLinks = [
   { name: "Home", href: "/" },
@@ -18,34 +19,30 @@ const navigationLinks = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const isActive = (href: string) => pathname === href;
 
   return (
-    <nav className='fixed top-0 left-0 md:h-[120px] w-full bg-gray-900 border-b border-gray-800'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='flex items-center justify-between h-16'>
+    <nav className='w-full bg-[#000000] border-b border-gray-800'>
+      <div className='max-w-7xl mx-auto'>
+        <div className='flex items-center justify-between h-[120px]'>
           {/* Logo */}
           <div className='flex-shrink-0'>
             <Link href='/' className='flex items-center'>
-              <Image
-                src='/logo.svg'
-                alt='Logo'
-                width={40}
-                height={40}
-                className='h-10 w-10'
-              />
+              <Image src='/logo.svg' alt='Logo' width={140} height={140} />
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className='hidden md:block'>
-            <div className='ml-10 flex items-baseline space-x-1'>
-              {navigationLinks.map((link, index) => (
+          <div className='hidden md:flex items-center h-[50px] bg-[#333] px-2 py-3 rounded-full'>
+            <div className='flex items-baseline space-x-1'>
+              {navigationLinks.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
-                    index === 0
-                      ? "bg-white text-gray-900"
+                  className={`px-6 py-2 rounded-full text-base font-medium transition-colors duration-200 ${
+                    isActive(link.href)
+                      ? "bg-white text-[#231D3C]"
                       : "text-gray-300 hover:bg-gray-800 hover:text-white"
                   }`}
                 >
@@ -57,15 +54,12 @@ export default function Navbar() {
 
           {/* Desktop Action Buttons */}
           <div className='hidden md:flex items-center space-x-4'>
-            <Button
-              variant='outline'
-              className='border-gray-600 text-white hover:bg-gray-800 hover:text-white'
-            >
+            <button className='h-[44px] px-6 border border-[#FFFFFF] text-white hover:bg-gray-800 hover:text-white rounded-full transition-colors duration-200'>
               Log In
-            </Button>
-            <Button className='bg-purple-600 hover:bg-purple-700 text-white'>
+            </button>
+            <button className='h-[44px] px-6 bg-[#534590] hover:bg-purple-700 text-white rounded-full transition-colors duration-200'>
               Sign Up
-            </Button>
+            </button>
           </div>
 
           {/* Mobile menu button */}
