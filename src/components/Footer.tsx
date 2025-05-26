@@ -48,24 +48,24 @@ export default function Footer() {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  const handleNewsletterSignup = () => {
-    console.log("Newsletter signup clicked");
-    // You can implement newsletter signup functionality here
-  };
-
   if (
     pathname === "/login" ||
     pathname === "/signup" ||
     pathname === "/verify-otp" ||
     pathname === "/reset-password" ||
     pathname === "/forget-password" ||
-    pathname === "/password-reset-success"
+    pathname === "/password-reset-success" ||
+    pathname === "/football-ai"
   ) {
     return null;
   }
 
   return (
     <footer className='bg-black text-white py-16 lg:pt-20 lg:pb-10'>
+      <div>
+        
+      </div>
+
       <div className='container mx-auto px-4'>
         <div className='text-center space-y-8'>
           {/* Logo */}

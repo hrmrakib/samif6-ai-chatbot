@@ -87,7 +87,7 @@ export default function LoginPage() {
             <h1 className='text-4xl font-semibold text-[#231D3C] mb-2'>
               Login
             </h1>
-          </div> 
+          </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className='space-y-6'>
@@ -164,17 +164,9 @@ export default function LoginPage() {
                 />
                 <span className='text-xl text-gray-600'>Remember</span>
               </label>
-              <button
-                type='button'
-                onClick={() =>
-                  alert(
-                    "Forgot password functionality would be implemented here"
-                  )
-                }
-                className='text-xl text-gray-600 hover:text-purple-600 transition-colors duration-200'
-              >
+              <Link href='/forget-password' className='text-xl text-gray-600 hover:text-purple-600 transition-colors duration-200'>
                 Forget Password?
-              </button>
+              </Link>
             </div>
 
             {/* Login Button */}

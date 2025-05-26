@@ -8,7 +8,7 @@ import MembershipSection from "@/components/MembershipSection";
 import ProductsSection from "@/components/ProductSection";
 import React from "react";
 
-const page = () => {
+const HomePage = () => {
   return (
     <div>
       <HeroSection />
@@ -27,4 +27,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default HomePage;

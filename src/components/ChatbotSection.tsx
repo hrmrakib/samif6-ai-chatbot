@@ -63,9 +63,9 @@ export default function ChatbotSection() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [messages]);
 
   const simulateAIResponse = async (userMessage: string): Promise<string> => {
     // Simulate API delay
@@ -108,39 +108,39 @@ export default function ChatbotSection() {
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: inputValue,
-      isUser: true,
-      timestamp: new Date(),
-    };
+    // const userMessage: Message = {
+    //   id: Date.now().toString(),
+    //   content: inputValue,
+    //   isUser: true,
+    //   timestamp: new Date(),
+    // };
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInputValue("");
-    setIsLoading(true);
+    // setMessages((prev) => [...prev, userMessage]);
+    // setInputValue("");
+    // setIsLoading(true);
 
-    try {
-      const aiResponse = await simulateAIResponse(inputValue);
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: aiResponse,
-        isUser: false,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMessage]);
-    } catch (error) {
-      console.error("Error getting AI response:", error);
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content:
-          "Sorry, I'm having trouble responding right now. Please try again.",
-        isUser: false,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
+    // try {
+    //   const aiResponse = await simulateAIResponse(inputValue);
+    //   const aiMessage: Message = {
+    //     id: (Date.now() + 1).toString(),
+    //     content: aiResponse,
+    //     isUser: false,
+    //     timestamp: new Date(),
+    //   };
+    //   setMessages((prev) => [...prev, aiMessage]);
+    // } catch (error) {
+    //   console.error("Error getting AI response:", error);
+    //   const errorMessage: Message = {
+    //     id: (Date.now() + 1).toString(),
+    //     content:
+    //       "Sorry, I'm having trouble responding right now. Please try again.",
+    //     isUser: false,
+    //     timestamp: new Date(),
+    //   };
+    //   setMessages((prev) => [...prev, errorMessage]);
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   const handleCategoryClick = (category: (typeof aiCategories)[0]) => {
@@ -364,7 +364,7 @@ export default function ChatbotSection() {
                 )}
 
                 {/* Chat Messages */}
-                {/* {messages.map((message) => (
+                {messages.map((message) => (
                   <div
                     key={message.id}
                     className={`flex ${
@@ -379,12 +379,10 @@ export default function ChatbotSection() {
                       }`}
                     >
                       <p className='text-sm md:text-base'>{message.content}</p>
-                      <p className='text-xs opacity-70 mt-1'>
-                        {formatTime(message.timestamp)}
-                      </p>
+                      <p className='text-xs opacity-70 mt-1'></p>
                     </div>
                   </div>
-                ))} */}
+                ))}
 
                 {/* Loading Indicator */}
                 {isLoading && (

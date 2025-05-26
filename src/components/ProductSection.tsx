@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Product {
   id: string;
@@ -197,14 +198,13 @@ export default function ProductsSection() {
 
                   {/* Overlay Actions */}
                   <div className='absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2'>
-                    <Button
-                      size='icon'
-                      variant='secondary'
+                    <Link
+                      href={`/product/${product.id}`}
                       onClick={() => viewProduct(product.id)}
-                      className='bg-white/90 hover:bg-white text-gray-900'
+                      className='bg-white/90 hover:bg-white text-gray-900 p-2 rounded-full flex items-center justify-center transition-colors duration-300' 
                     >
-                      <Eye className='w-4 h-4' />
-                    </Button>
+                      <Eye className='w-6 h-6' />
+                    </Link>
                     <Button
                       size='icon'
                       variant='secondary'

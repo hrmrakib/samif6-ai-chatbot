@@ -12,9 +12,9 @@ import { usePathname, useRouter } from "next/navigation";
 const navigationLinks = [
   { name: "Home", href: "/" },
   { name: "The Football AI", href: "/football-ai" },
-  { name: "Exclusive Rewards", href: "/rewards" },
-  { name: "Become A Member", href: "/membership" },
-  { name: "Contact", href: "/contact" },
+  { name: "Exclusive Rewards", href: "#rewards" },
+  { name: "Become A Member", href: "#membership" },
+  { name: "Contact", href: "#contact" },
 ];
 
 export default function Navbar() {
@@ -29,19 +29,20 @@ export default function Navbar() {
     pathname === "/verify-otp" ||
     pathname === "/reset-password" ||
     pathname === "/forget-password" ||
-    pathname === "/password-reset-success"
+    pathname === "/password-reset-success"||
+    pathname === "/football-ai" 
   ) {
     return null;
   }
 
   return (
     <nav className='w-full bg-[#000000]'>
-      <div className='max-w-7xl mx-auto'>
-        <div className='flex items-center justify-between h-[120px]'>
+      <div className='container mx-auto'>
+        <div className='flex items-center justify-between h-[60px] md:h-[120px] px-5'>
           {/* Logo */}
           <div className='flex-shrink-0'>
             <Link href='/' className='flex items-center'>
-              <Image src='/logo.svg' alt='Logo' width={140} height={140} />
+              <Image src='/logo.svg' alt='Logo' width={140} height={140} className="w-[70px]" />
             </Link>
           </div>
 

@@ -10,7 +10,10 @@ export default function FootballRewardSection() {
   };
 
   return (
-    <section className='min-h-screen bg-[url("/rewards-bg.png")] bg-no-repeat bg-cover bg-center relative'>
+    <section
+      id='rewards'
+      className='min-h-screen bg-[url("/rewards-bg.png")] bg-no-repeat bg-cover bg-center relative'
+    >
       {/* Background Image with Overlay */}
       <div className='absolute inset-0'>
         <div
@@ -39,10 +42,8 @@ export default function FootballRewardSection() {
 
         {/* Tickets Display */}
         <div className='flex flex-col items-center gap-8 mb-16'>
-          {/* First Ticket - World Cup */}
           <div className='w-full max-w-md'>
-            <div className='bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-6 text-white shadow-2xl relative'>
-              {/* Ticket Content */}
+            <div className='bg-gradient-to-r from-purple-600 to-blue-600 opacity-90 rounded-lg p-6 text-white shadow-2xl relative'>
               <div className='flex justify-between items-start mb-4'>
                 <div className='flex-1'>
                   <h3 className='font-bold text-lg sm:text-xl mb-1'>
@@ -76,7 +77,6 @@ export default function FootballRewardSection() {
                 </div>
               </div>
 
-              {/* Ticket perforation holes */}
               <div className='absolute right-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -mr-3' />
               <div className='absolute left-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -ml-3' />
             </div>

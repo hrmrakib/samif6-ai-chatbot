@@ -120,7 +120,7 @@ export default function ContactSection() {
   }
 
   return (
-    <section className='min-h-screen bg-[#000]'>
+    <section id='contact' className='min-h-screen bg-[#000]'>
       <div className='container mx-auto px-4 py-16 lg:py-24'>
         <div className='grid items-center justify-between grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 container mx-auto'>
           {/* Left Side - Football Player Image */}
