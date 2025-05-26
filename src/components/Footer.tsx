@@ -1,14 +1,9 @@
 "use client";
 
-import {
-  Facebook,
-  Twitter,
-  Linkedin,
-  Instagram,
-  ExternalLink,
-} from "lucide-react";
+import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navigationLinks = [
   { name: "Home", href: "/" },
@@ -47,7 +42,7 @@ const socialLinks = [
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-
+  const pathname = usePathname();
   const handleSocialClick = (platform: string, url: string) => {
     console.log(`Opening ${platform}: ${url}`);
     window.open(url, "_blank", "noopener,noreferrer");
@@ -57,6 +52,16 @@ export default function Footer() {
     console.log("Newsletter signup clicked");
     // You can implement newsletter signup functionality here
   };
+
+  if (
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/verify-otp" ||
+    pathname === "/reset-password" ||
+    pathname === "/forget-password"
+  ) {
+    return null;
+  }
 
   return (
     <footer className='bg-black text-white py-16 lg:pt-20 lg:pb-10'>

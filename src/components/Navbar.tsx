@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const navigationLinks = [
   { name: "Home", href: "/" },
@@ -21,6 +21,17 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const isActive = (href: string) => pathname === href;
+  const router = useRouter();
+
+  if (
+    pathname === "/login" ||
+    pathname === "/signup" ||
+    pathname === "/verify-otp" ||
+    pathname === "/reset-password" ||
+    pathname === "/forget-password"
+  ) {
+    return null;
+  }
 
   return (
     <nav className='w-full bg-[#000000]'>
@@ -54,12 +65,18 @@ export default function Navbar() {
 
           {/* Desktop Action Buttons */}
           <div className='hidden md:flex items-center space-x-4'>
-            <button className='h-[44px] px-6 border border-[#FFFFFF] text-white hover:bg-gray-800 hover:text-white rounded-full transition-colors duration-200'>
+            <Link
+              href='/login'
+              className='h-[44px] px-6 border border-[#FFFFFF] text-white hover:bg-gray-800 hover:text-white flex items-center justify-center rounded-full transition-colors duration-200'
+            >
               Log In
-            </button>
-            <button className='h-[44px] px-6 bg-[#534590] hover:bg-purple-700 text-white rounded-full transition-colors duration-200'>
+            </Link>
+            <Link
+              href='/signup'
+              className='h-[44px] px-6 bg-[#534590] hover:bg-purple-700 text-white flex items-center justify-center rounded-full transition-colors duration-200'
+            >
               Sign Up
-            </button>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -101,13 +118,13 @@ export default function Navbar() {
                     <Button
                       variant='outline'
                       className='border-gray-600 text-white hover:bg-gray-800 hover:text-white w-full'
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => router.push("/login")}
                     >
                       Log In
                     </Button>
                     <Button
                       className='bg-purple-600 hover:bg-purple-700 text-white w-full'
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => router.push("/signup")}
                     >
                       Sign Up
                     </Button>
