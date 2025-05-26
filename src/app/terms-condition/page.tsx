@@ -1,11 +1,11 @@
 import React from "react";
 
-const PrivacyPolicy = () => {
+const TermsCondition = () => {
   return (
     <div className='bg-[#000] text-[#E8E8E8]'>
       <div className='container mx-auto px-4 py-8'>
         <h2 className='text-3xl font-bold mb-4 pb-5 border-b-2 border-[#B5B5B5]'>
-          Privacy & Policy
+          Terms & Conditions
         </h2>
 
         <p className='text-lg mb-6'>
@@ -55,4 +55,4 @@ const PrivacyPolicy = () => {
   );
 };
 
-export default PrivacyPolicy;
+export default TermsCondition;
