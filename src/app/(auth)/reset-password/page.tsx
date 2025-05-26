@@ -193,7 +193,7 @@ export default function ResetPasswordPage() {
         <div className='bg-white rounded-2xl shadow-2xl p-8 space-y-6'>
           {/* Header */}
           <div className='text-center space-y-2'>
-            <h1 className='text-[48px] font-semibold text-[#231D3C]'>
+            <h1 className='text-4xl font-semibold text-[#231D3C]'>
               Reset Password
             </h1>
             <p className='text-[#534590] text-lg'>

@@ -144,7 +144,7 @@ export default function VerifyOTPPage() {
         <div className='bg-white rounded-2xl shadow-2xl p-8 space-y-8'>
           {/* Header */}
           <div className='text-center space-y-4'>
-            <h1 className='text-5xl font-semibold text-[#231D3C]'>
+            <h1 className='text-4xl font-semibold text-[#231D3C]'>
               Verify With OTP
             </h1>
             <p className='text-[#231D3C] text-base font-medium'>

@@ -84,10 +84,10 @@ export default function LoginPage() {
         <div className='bg-white rounded-2xl shadow-2xl p-8 space-y-6'>
           {/* Header */}
           <div className='text-center'>
-            <h1 className='text-[40px] font-semibold text-[#231D3C] mb-2'>
+            <h1 className='text-4xl font-semibold text-[#231D3C] mb-2'>
               Login
             </h1>
-          </div>
+          </div> 
 
           {/* Form */}
           <form onSubmit={handleSubmit} className='space-y-6'>

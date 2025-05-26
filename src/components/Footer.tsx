@@ -58,7 +58,8 @@ export default function Footer() {
     pathname === "/signup" ||
     pathname === "/verify-otp" ||
     pathname === "/reset-password" ||
-    pathname === "/forget-password"
+    pathname === "/forget-password" ||
+    pathname === "/password-reset-success"
   ) {
     return null;
   }
