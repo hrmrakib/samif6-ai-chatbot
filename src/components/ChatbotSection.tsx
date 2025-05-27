@@ -41,6 +41,7 @@ export default function ChatbotSection() {
       timestamp: new Date(),
     },
   ]);
+
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([
@@ -346,7 +347,6 @@ export default function ChatbotSection() {
                       Hello! Ask Me About Global Football Vault.
                     </h1>
 
-                    {/* Category Buttons */}
                     <div className='flex flex-wrap justify-center gap-3 md:gap-4'>
                       {aiCategories.map((category) => (
                         <Button
@@ -364,7 +364,7 @@ export default function ChatbotSection() {
                 )}
 
                 {/* Chat Messages */}
-                {messages.map((message) => (
+                {/* {messages.map((message) => (
                   <div
                     key={message.id}
                     className={`flex ${
@@ -382,7 +382,7 @@ export default function ChatbotSection() {
                       <p className='text-xs opacity-70 mt-1'></p>
                     </div>
                   </div>
-                ))}
+                ))} */}
 
                 {/* Loading Indicator */}
                 {isLoading && (
@@ -407,7 +407,7 @@ export default function ChatbotSection() {
 
                 <div className=''>
                   <div className='max-w-4xl mx-auto'>
-                    <div className='relative h-32 flex gap-2 md:gap-4 bg-[#2d2d2d] rounded-2xl p-2'>
+                    <div className='relative h-28 md:h-32 flex gap-2 md:gap-4 bg-[#2d2d2d] rounded-2xl p-2'>
                       <Input
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
@@ -420,11 +420,11 @@ export default function ChatbotSection() {
                         onClick={handleSendMessage}
                         disabled={!inputValue.trim() || isLoading}
                         //   size='icon'
-                        className='absolute right-2 bottom-5 h-6 w-6 md:h-10 md:w-10 bg-[#534590] hover:bg-purple-700 text-white rounded-full flex items-center justify-center transition-colors duration-200'
+                        className='absolute right-2 bottom-3 h-10 w-10 bg-[#534590] hover:bg-purple-700 text-white rounded-full flex items-center justify-center transition-colors duration-200'
                       >
                         <ArrowRight
                           size={28}
-                          className='text-2xl text-white h-4 w-4 md:h-6 md:w-6 -rotate-45'
+                          className='text-2xl text-white h-6 w-6 -rotate-45'
                         />
                       </Button>
                     </div>

@@ -69,7 +69,7 @@ const pricingPlans: PricingPlan[] = [
     ],
     isPopular: false,
     buttonText: "Upgrade to Pro Plan",
-    buttonVariant: "outline",
+    buttonVariant: "default",
   },
 ];
 

@@ -16,6 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface UserData {
   name: string;
@@ -36,6 +37,7 @@ const userData: UserData = {
 export default function UserProfileDropdown() {
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
   const [activeSection, setActiveSection] = useState("profile");
+  const router = useRouter();
 
   const handleProfileClick = () => {
     setActiveSection("profile");
@@ -62,6 +64,7 @@ export default function UserProfileDropdown() {
     console.log("User logging out");
     // Add logout logic here
     // Clear user session, redirect to login, etc.
+    router.push("/login");
   };
 
   const handleEditProfile = () => {
