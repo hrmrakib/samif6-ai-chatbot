@@ -5,7 +5,7 @@ import FootballRewardSection from "@/components/FootballRewardSection";
 import HeroSection from "@/components/Hero";
 import HowItWorksSection from "@/components/HowItsWork";
 import MembershipSection from "@/components/MembershipSection";
-import ProductsSection from "@/components/ProductSection";
+// import ProductsSection from "@/components/ProductSection";
 import React from "react";
 
 const HomePage = () => {
@@ -20,7 +20,7 @@ const HomePage = () => {
 
       <FootballRewardSection />
       <HowItWorksSection />
-      <ProductsSection />
+      {/* <ProductsSection /> */}
       <MembershipSection />
       <ContactSection />
     </div>

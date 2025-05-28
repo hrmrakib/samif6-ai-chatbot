@@ -121,7 +121,7 @@ export default function ChatbotSection() {
             variant='ghost'
             size='icon'
             onClick={() => setIsSidebarOpen(false)}
-            className='md:hidden text-gray-400'
+            className='md:hidden text-gray-400 hover:text-white'
           >
             <X className='h-5 w-5' />
           </Button>
@@ -135,7 +135,7 @@ export default function ChatbotSection() {
             variant='ghost'
             size='icon'
             onClick={startNewChat}
-            className='text-gray-400'
+            className='text-gray-400 hover:text-white hover:bg-gray-800'
           >
             <Search className='h-6 w-6' />
           </Button>
@@ -143,7 +143,7 @@ export default function ChatbotSection() {
             variant='ghost'
             size='icon'
             onClick={startNewChat}
-            className='text-gray-400'
+            className='text-gray-400 hover:text-white hover:bg-gray-800'
           >
             <SquarePen className='h-6 w-6' />
           </Button>
@@ -165,7 +165,7 @@ export default function ChatbotSection() {
                       setCurrentChatId(chat.id);
                       setIsSidebarOpen(false);
                     }}
-                    className='w-full text-left px-3 py-2 rounded-lg text-gray-300 transition-colors'
+                    className='w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors'
                   >
                     {chat.name}
                   </button>
@@ -188,7 +188,7 @@ export default function ChatbotSection() {
                       setCurrentChatId(chat.id);
                       setIsSidebarOpen(false);
                     }}
-                    className='w-full text-left px-3 py-2 rounded-lg text-gray-300 transition-colors'
+                    className='w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors'
                   >
                     {chat.name}
                   </button>
@@ -211,7 +211,7 @@ export default function ChatbotSection() {
                       setCurrentChatId(chat.id);
                       setIsSidebarOpen(false);
                     }}
-                    className='w-full text-left px-3 py-2 rounded-lg text-gray-300 transition-colors'
+                    className='w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors'
                   >
                     {chat.name}
                   </button>
@@ -271,7 +271,7 @@ export default function ChatbotSection() {
                           key={category.id}
                           onClick={() => handleCategoryClick(category)}
                           variant='outline'
-                          className='bg-gray-800/50 hover:bg-gray-800/50 border-gray-600 text-white hover:text-white text-sm md:text-base px-4 py-2'
+                          className='bg-gray-800/50 border-gray-600 text-white text-sm md:text-base px-4 py-2'
                         >
                           <span className='mr-2'>{category.icon}</span>
                           {category.label}
@@ -281,6 +281,28 @@ export default function ChatbotSection() {
                   </div>
                 )}
 
+                {/* Chat Messages */}
+                {/* {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex ${
+                      message.isUser ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`max-w-xs md:max-w-2xl px-4 py-3 rounded-2xl ${
+                        message.isUser
+                          ? "bg-purple-600 text-white"
+                          : "bg-gray-800 text-white"
+                      }`}
+                    >
+                      <p className='text-sm md:text-base'>{message.content}</p>
+                      <p className='text-xs opacity-70 mt-1'></p>
+                    </div>
+                  </div>
+                ))} */}
+
+                {/* Loading Indicator */}
                 {isLoading && (
                   <div className='flex justify-start'>
                     <div className='bg-gray-800 text-white px-4 py-3 rounded-2xl'>
@@ -304,19 +326,18 @@ export default function ChatbotSection() {
                 <div className=''>
                   <div className='max-w-4xl mx-auto'>
                     <div className='relative h-28 md:h-32 flex gap-2 md:gap-4 bg-[#2d2d2d] rounded-2xl p-2'>
-                      {/* <Input
+                      <Input
+                        // value={inputValue}
+                        // onChange={(e) => setInputValue(e.target.value)}
+                        // onKeyPress={handleKeyPress}
                         placeholder='Ask Me About Anything Football...'
                         className='flex-1 bg-transparent border-none text-white placeholder-gray-400 outline-none focus:ring-none text-sm md:text-base'
-                      /> */}
-
-                      <p className='text-[#ffffff93] text-sm md:text-base flex-1 p-5'>
-                        Ask Me About Anything Football...
-                      </p>
+                      />
                       <Button
                         onClick={handleSendMessage}
                         disabled={!inputValue.trim() || isLoading}
                         //   size='icon'
-                        className='absolute right-2 bottom-3 h-10 w-10 bg-[#534590] text-white rounded-full flex items-center justify-center transition-colors duration-200'
+                        className='absolute right-2 bottom-3 h-10 w-10 bg-[#534590] hover:bg-purple-700 text-white rounded-full flex items-center justify-center transition-colors duration-200'
                       >
                         <ArrowRight
                           size={28}

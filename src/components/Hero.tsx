@@ -2,6 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import NavbarTransparent from "./NavbarTransparent";
 
 export default function HeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -20,6 +21,7 @@ export default function HeroSection() {
 
   return (
     <section className='relative h-[600px] md:min-h-screen flex items-center justify-center overflow-hidden'>
+      <NavbarTransparent />
       {/* Video Background */}
       <div className='absolute inset-0 w-full h-full'>
         <video
@@ -38,7 +40,7 @@ export default function HeroSection() {
         </video>
 
         {/* Dark overlay for better text readability */}
-        <div className='absolute inset-0 bg-black/40' />
+        <div className='absolute inset-0 bg-[#00000080]' />
 
         {/* Purple energy overlay effect */}
         <div className='absolute inset-0 bg-gradient-radial from-purple-500/20 via-transparent to-transparent' />
@@ -76,7 +78,7 @@ export default function HeroSection() {
           <Button
             onClick={handleUnlockVault}
             size='lg'
-            className='bg-purple-600 hover:bg-purple-700 text-white text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25'
+            className='bg-[#534590] hover:bg-[#534590] text-white text-lg sm:text-2xl px-8 sm:px-12 py-4 sm:py-6 rounded-full font-normal transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25'
           >
             Unlock The Vault
           </Button>

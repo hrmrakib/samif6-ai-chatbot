@@ -7,10 +7,13 @@ import { Check, Crown, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
+import MembershipSection2 from "./MembershipSection2";
 
 interface PricingPlan {
   id: string;
   name: string;
+  href?: string;
   icon: React.ReactNode;
   monthlyPrice: number;
   yearlyPrice: number;
@@ -25,6 +28,7 @@ const pricingPlans: PricingPlan[] = [
   {
     id: "entry",
     name: "Entry Membership",
+    href: "/payment",
     icon: <Star className='w-6 h-6' />,
     monthlyPrice: 29.99,
     yearlyPrice: 299.99,
@@ -40,6 +44,7 @@ const pricingPlans: PricingPlan[] = [
   {
     id: "premium",
     name: "Premium Membership",
+    href: "/payment",
     icon: <Zap className='w-6 h-6' />,
     monthlyPrice: 39.99,
     yearlyPrice: 399.99,
@@ -57,6 +62,7 @@ const pricingPlans: PricingPlan[] = [
   {
     id: "vip",
     name: "VIP Membership",
+    href: "/payment",
     icon: <Crown className='w-6 h-6' />,
     monthlyPrice: 89.99,
     yearlyPrice: 899.99,
@@ -78,7 +84,7 @@ export default function MembershipSection() {
     "monthly"
   );
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-
+  const router = useRouter();
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -101,10 +107,11 @@ export default function MembershipSection() {
     setSelectedPlan(planId);
     console.log(`Selected plan: ${planId} with ${billingCycle} billing`);
     // Here you would typically redirect to checkout or open a payment modal
+    router.push(`/payment?plan=${planId}&cycle=${billingCycle}`);
   };
 
   return (
-    <section id="membership" className='min-h-screen bg-gray-900 py-16 lg:py-24'>
+    <section id='membership' className='min-h-screen bg-[#000] py-16 lg:py-24'>
       <div className='container mx-auto px-4'>
         {/* Header */}
         <div className='text-center mb-16'>
@@ -146,13 +153,13 @@ export default function MembershipSection() {
         </div>
 
         {/* Pricing Cards */}
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto'>
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto'>
           {pricingPlans.map((plan) => (
             <Card
               key={plan.id}
-              className={`relative bg-gray-800 border-2 transition-all duration-300 hover:scale-105 ${
+              className={`relative bg-transparent border-2 transition-all duration-300 hover:scale-105 flex flex-col ${
                 plan.isPopular
-                  ? "border-purple-500 shadow-2xl shadow-purple-500/20"
+                  ? "border-[#534590] shadow-2xl shadow-[#534590]/20"
                   : selectedPlan === plan.id
                   ? "border-purple-400"
                   : "border-gray-700 hover:border-gray-600"
@@ -161,7 +168,7 @@ export default function MembershipSection() {
               {/* Popular Badge */}
               {plan.isPopular && (
                 <div className='absolute -top-4 left-1/2 transform -translate-x-1/2'>
-                  <Badge className='bg-purple-500 text-white px-4 py-1 text-sm font-semibold'>
+                  <Badge className='bg-[#534590] text-white px-4 py-1 text-sm font-semibold'>
                     Most Popular
                   </Badge>
                 </div>
@@ -171,7 +178,7 @@ export default function MembershipSection() {
                 <div className='flex justify-center mb-4'>
                   <div
                     className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                      plan.isPopular ? "bg-purple-500" : "bg-gray-700"
+                      plan.isPopular ? "bg-[#534590]" : "bg-gray-700"
                     }`}
                   >
                     <div className='text-white'>{plan.icon}</div>
@@ -198,28 +205,28 @@ export default function MembershipSection() {
                 )}
               </CardHeader>
 
-              <CardContent className='pt-0'>
-                {/* Features List */}
-                <div className='space-y-4 mb-8'>
-                  {plan.features.map((feature, index) => (
-                    <div key={index} className='flex items-start gap-3'>
-                      <div className='flex-shrink-0 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center mt-0.5'>
-                        <Check className='w-3 h-3 text-white' />
+              <CardContent className='pt-0 flex flex-col h-full'>
+                <div className='flex-grow'>
+                  <div className='flex flex-col justify-between space-y-4 mb-8'>
+                    {plan.features.map((feature, index) => (
+                      <div key={index} className='flex items-start gap-3'>
+                        <div className='flex-shrink-0 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center mt-0.5'>
+                          <Check className='w-3 h-3 text-white' />
+                        </div>
+                        <span className='text-gray-300 text-sm leading-relaxed'>
+                          {feature}
+                        </span>
                       </div>
-                      <span className='text-gray-300 text-sm leading-relaxed'>
-                        {feature}
-                      </span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
 
-                {/* Action Button */}
                 <Button
                   onClick={() => handlePlanSelection(plan.id)}
                   variant={plan.buttonVariant}
                   className={`w-full py-3 font-semibold transition-all duration-300 ${
                     plan.isPopular
-                      ? "bg-purple-600 hover:bg-purple-700 text-white"
+                      ? "bg-[#534590] hover:bg-purple-700 text-white"
                       : plan.buttonVariant === "outline"
                       ? "border-gray-600 text-white hover:bg-gray-800"
                       : "bg-gray-700 hover:bg-gray-600 text-white"
@@ -228,6 +235,8 @@ export default function MembershipSection() {
                   {plan.buttonText}
                 </Button>
               </CardContent>
+
+              {/* <MembershipSection2 /> */}
             </Card>
           ))}
         </div>

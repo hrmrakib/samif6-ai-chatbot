@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function FootballRewardSection() {
   const handleUnlockVault = () => {
@@ -12,7 +13,7 @@ export default function FootballRewardSection() {
   return (
     <section
       id='rewards'
-      className='min-h-screen bg-[url("/rewards-bg.png")] bg-no-repeat bg-cover bg-center relative'
+      className='min-h-screen bg-[url("/rewards-bg.png")] bg-no-repeat bg-cover bg-center relative bg-fixed'
     >
       {/* Background Image with Overlay */}
       <div className='absolute inset-0'>
@@ -42,7 +43,7 @@ export default function FootballRewardSection() {
 
         {/* Tickets Display */}
         <div className='flex flex-col items-center gap-8 mb-16'>
-          <div className='w-full max-w-md'>
+          <Link href='/ticket' className='w-full max-w-lg'>
             <div className='bg-gradient-to-r from-purple-600 to-blue-600 opacity-90 rounded-lg p-6 text-white shadow-2xl relative'>
               <div className='flex justify-between items-start mb-4'>
                 <div className='flex-1'>
@@ -80,10 +81,10 @@ export default function FootballRewardSection() {
               <div className='absolute right-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -mr-3' />
               <div className='absolute left-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -ml-3' />
             </div>
-          </div>
+          </Link>
 
           {/* Second Ticket - Madrid Jersey */}
-          <div className='w-full max-w-md'>
+          <Link href='/ticket' className='w-full max-w-lg'>
             <div className='bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg p-6 text-white shadow-2xl relative'>
               {/* Ticket Content */}
               <div className='flex justify-between items-start mb-4'>
@@ -123,7 +124,7 @@ export default function FootballRewardSection() {
               <div className='absolute right-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -mr-3' />
               <div className='absolute left-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -ml-3' />
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Bottom Section */}

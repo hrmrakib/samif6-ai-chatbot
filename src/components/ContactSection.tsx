@@ -125,7 +125,7 @@ export default function ContactSection() {
         <div className='grid items-center justify-between grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 container mx-auto'>
           {/* Left Side - Football Player Image */}
           <div className='relative order-2 lg:order-1'>
-            <div className='relative'>
+            {/* <div className='relative'>
               <div className='relative z-10 flex justify-center'>
                 <Image
                   src='/contact-img.png'
@@ -143,6 +143,17 @@ export default function ContactSection() {
                   className='w-full max-w-[400px] h-auto object-contain'
                   width={300}
                   height={300}
+                />
+              </div>
+            </div> */}
+            <div className='relative'>
+              <div className='relative z-10 flex justify-center'>
+                <Image
+                  src='/logo.png'
+                  alt='Football Player'
+                  className='w-full max-w-xl h-auto object-contain'
+                  width={900}
+                  height={900}
                 />
               </div>
             </div>
@@ -260,7 +271,7 @@ export default function ContactSection() {
                 <Button
                   type='submit'
                   disabled={isSubmitting}
-                  className='w-full bg-purple-600 hover:bg-purple-700 text-white py-6 font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='w-full bg-[#534590] hover:bg-[#534590] text-white py-6 font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed'
                 >
                   {isSubmitting ? (
                     <div className='flex items-center gap-2'>

@@ -165,7 +165,7 @@ export default function ProductsSection() {
   };
 
   return (
-    <section className='min-h-screen bg-gray-900 py-16 lg:py-24'>
+    <section className='min-h-screen bg-[#000] py-16 lg:py-24'>
       <div className='container mx-auto px-4'>
         {/* Header */}
         <div className='text-center mb-16'>

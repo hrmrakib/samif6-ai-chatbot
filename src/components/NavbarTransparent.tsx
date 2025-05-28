@@ -17,7 +17,7 @@ const navigationLinks = [
   { name: "Contact", href: "#contact" },
 ];
 
-export default function Navbar() {
+export default function NavbarTransparent() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const isActive = (href: string) => pathname === href;
@@ -31,13 +31,13 @@ export default function Navbar() {
     pathname === "/forget-password" ||
     pathname === "/password-reset-success" ||
     pathname === "/football-ai" ||
-    pathname === "/"
+    pathname === "/football-ai/ai-coach"
   ) {
     return null;
   }
 
   return (
-    <nav className='w-full bg-[#000000]'>
+    <nav className='w-full bg-transparent fixed top-0 z-50'>
       <div className='container mx-auto'>
         <div className='flex items-center justify-between h-[60px] md:h-[120px] px-5'>
           {/* Logo */}
@@ -46,9 +46,9 @@ export default function Navbar() {
               <Image
                 src='/logo2.png'
                 alt='Logo'
-                width={140}
-                height={140}
-                className='w-[70px]'
+                width={940}
+                height={940}
+                className='w-[130px]'
               />
             </Link>
           </div>

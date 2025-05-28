@@ -2,7 +2,7 @@
 
 export default function HowItWorksSection() {
   return (
-    <section className='md:max-h-screen bg-[url("/how-bg.jpg")] bg-no-repeat bg-cover bg-center relative z-[1] overflow-hidden'>
+    <section className='md:max-h-screen bg-[url("/how-bg.jpg")] bg-no-repeat bg-cover bg-center relative z-[1] overflow-hidden bg-fixed'>
       <div className='absolute inset-0 bg-[#000000a0] '></div>
 
       <div className='relative z-10 container mx-auto px-4 py-16 lg:py-24'>
