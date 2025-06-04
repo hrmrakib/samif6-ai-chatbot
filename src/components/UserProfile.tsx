@@ -39,11 +39,10 @@ export default function UserProfileDropdown() {
   const [activeSection, setActiveSection] = useState("profile");
   const router = useRouter();
 
-  const handleProfileClick = () => {
-    setActiveSection("profile");
-    console.log("Navigate to profile page");
-    // Add navigation logic here
-  };
+  // const handleProfileClick = () => {
+  //   setActiveSection("profile");
+  //   console.log("Navigate to profile page");
+  // };
 
   const handleTicketsClick = () => {
     setActiveSection("tickets");

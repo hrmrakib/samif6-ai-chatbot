@@ -43,8 +43,8 @@ export default function ChatbotSection() {
     },
   ]);
   const [inputValue, setInputValue] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [chatSessions, setChatSessions] = useState<ChatSession[]>([
+  const [isLoading] = useState(false);
+  const [chatSessions] = useState<ChatSession[]>([
     { id: "1", name: "Chat Name", messages: [], lastMessage: new Date() },
     { id: "2", name: "Chat Name", messages: [], lastMessage: new Date() },
     { id: "3", name: "Chat Name", messages: [], lastMessage: new Date() },
@@ -56,7 +56,7 @@ export default function ChatbotSection() {
     { id: "9", name: "Chat Name", messages: [], lastMessage: new Date() },
     { id: "10", name: "Chat Name", messages: [], lastMessage: new Date() },
   ]);
-  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [, setCurrentChatId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -68,43 +68,43 @@ export default function ChatbotSection() {
     scrollToBottom();
   }, [messages]);
 
-  const simulateAIResponse = async (userMessage: string): Promise<string> => {
-    // Simulate API delay
-    await new Promise((resolve) =>
-      setTimeout(resolve, 1000 + Math.random() * 2000)
-    );
+  // const simulateAIResponse = async (userMessage: string): Promise<string> => {
+  //   // Simulate API delay
+  //   await new Promise((resolve) =>
+  //     setTimeout(resolve, 1000 + Math.random() * 2000)
+  //   );
 
-    // Simple AI response simulation based on keywords
-    const lowerMessage = userMessage.toLowerCase();
+  //   // Simple AI response simulation based on keywords
+  //   const lowerMessage = userMessage.toLowerCase();
 
-    if (lowerMessage.includes("nutrition") || lowerMessage.includes("diet")) {
-      return "Great question about nutrition! As your AI Football Coach, I recommend focusing on a balanced diet with adequate protein (1.6-2.2g per kg body weight), complex carbohydrates for energy, and proper hydration. Would you like specific meal plans for training days?";
-    }
+  //   if (lowerMessage.includes("nutrition") || lowerMessage.includes("diet")) {
+  //     return "Great question about nutrition! As your AI Football Coach, I recommend focusing on a balanced diet with adequate protein (1.6-2.2g per kg body weight), complex carbohydrates for energy, and proper hydration. Would you like specific meal plans for training days?";
+  //   }
 
-    if (lowerMessage.includes("training") || lowerMessage.includes("workout")) {
-      return "For optimal football training, I suggest a periodized approach combining technical skills, tactical awareness, physical conditioning, and mental preparation. What specific aspect of training would you like to focus on - speed, agility, strength, or endurance?";
-    }
+  //   if (lowerMessage.includes("training") || lowerMessage.includes("workout")) {
+  //     return "For optimal football training, I suggest a periodized approach combining technical skills, tactical awareness, physical conditioning, and mental preparation. What specific aspect of training would you like to focus on - speed, agility, strength, or endurance?";
+  //   }
 
-    if (
-      lowerMessage.includes("injury") ||
-      lowerMessage.includes("prevention")
-    ) {
-      return "Injury prevention is crucial for football players. Key strategies include proper warm-up routines, strength training for muscle imbalances, flexibility work, adequate recovery, and listening to your body. Are you experiencing any specific concerns or areas of discomfort?";
-    }
+  //   if (
+  //     lowerMessage.includes("injury") ||
+  //     lowerMessage.includes("prevention")
+  //   ) {
+  //     return "Injury prevention is crucial for football players. Key strategies include proper warm-up routines, strength training for muscle imbalances, flexibility work, adequate recovery, and listening to your body. Are you experiencing any specific concerns or areas of discomfort?";
+  //   }
 
-    if (
-      lowerMessage.includes("analytics") ||
-      lowerMessage.includes("performance")
-    ) {
-      return "Performance analytics can significantly improve your game! I can help you track metrics like sprint speed, passing accuracy, distance covered, heart rate zones, and recovery patterns. What specific performance areas would you like to analyze?";
-    }
+  //   if (
+  //     lowerMessage.includes("analytics") ||
+  //     lowerMessage.includes("performance")
+  //   ) {
+  //     return "Performance analytics can significantly improve your game! I can help you track metrics like sprint speed, passing accuracy, distance covered, heart rate zones, and recovery patterns. What specific performance areas would you like to analyze?";
+  //   }
 
-    if (lowerMessage.includes("strength") || lowerMessage.includes("gym")) {
-      return "Strength training for football should focus on functional movements, explosive power, and sport-specific patterns. I recommend compound exercises like squats, deadlifts, and plyometrics. What's your current training experience level?";
-    }
+  //   if (lowerMessage.includes("strength") || lowerMessage.includes("gym")) {
+  //     return "Strength training for football should focus on functional movements, explosive power, and sport-specific patterns. I recommend compound exercises like squats, deadlifts, and plyometrics. What's your current training experience level?";
+  //   }
 
-    return "That's an interesting question about football! As your AI coach, I'm here to help with training, nutrition, injury prevention, performance analytics, and strength development. Could you be more specific about what aspect you'd like to explore?";
-  };
+  //   return "That's an interesting question about football! As your AI coach, I'm here to help with training, nutrition, injury prevention, performance analytics, and strength development. Could you be more specific about what aspect you'd like to explore?";
+  // };
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
