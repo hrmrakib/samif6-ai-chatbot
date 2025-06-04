@@ -5,7 +5,6 @@ import type React from "react";
 import { useState, useRef } from "react";
 import { Search, Menu, X, ArrowRight, SquarePen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Image from "next/image";
@@ -37,7 +36,7 @@ export default function ChatbotSection() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content: "Hello! Ask Me About Global Football Vault.",
+      content: "Hello! Ask me anything about Football!",
       isUser: false,
       timestamp: new Date(),
     },
@@ -310,7 +309,7 @@ export default function ChatbotSection() {
                       /> */}
 
                       <p className='text-[#ffffff93] text-sm md:text-base flex-1 p-5'>
-                        Ask Me About Anything Football...
+                        Hello! Ask me anything about Football!
                       </p>
                       <Button
                         onClick={handleSendMessage}

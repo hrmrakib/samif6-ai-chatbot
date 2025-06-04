@@ -125,27 +125,6 @@ export default function ContactSection() {
         <div className='grid items-center justify-between grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 container mx-auto'>
           {/* Left Side - Football Player Image */}
           <div className='relative order-2 lg:order-1'>
-            {/* <div className='relative'>
-              <div className='relative z-10 flex justify-center'>
-                <Image
-                  src='/contact-img.png'
-                  alt='Football Player'
-                  className='w-full max-w-md h-auto object-contain'
-                  width={600}
-                  height={600}
-                />
-              </div>
-
-              <div className='absolute -top-10 md:-top-20 left-1/2 transform -translate-x-1/2 z- flex justify-center'>
-                <Image
-                  src='/contact-shadow.svg'
-                  alt='Football Player'
-                  className='w-full max-w-[400px] h-auto object-contain'
-                  width={300}
-                  height={300}
-                />
-              </div>
-            </div> */}
             <div className='relative'>
               <div className='relative z-10 flex justify-center'>
                 <Image
@@ -198,7 +177,7 @@ export default function ContactSection() {
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
                     placeholder='Arjun Mazumder'
-                    className={`bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500 ${
+                    className={` border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500 ${
                       errors.name ? "border-red-500" : ""
                     }`}
                     disabled={isSubmitting}
@@ -225,7 +204,7 @@ export default function ContactSection() {
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
                     placeholder='arjun@example.com'
-                    className={`bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500 ${
+                    className={` border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500 ${
                       errors.email ? "border-red-500" : ""
                     }`}
                     disabled={isSubmitting}
@@ -254,7 +233,7 @@ export default function ContactSection() {
                     }
                     placeholder='Football Club Is A Professional Organization That Manages A Team...'
                     rows={4}
-                    className={`bg-gray-800 border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500 resize-none ${
+                    className={` border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500 resize-none ${
                       errors.description ? "border-red-500" : ""
                     }`}
                     disabled={isSubmitting}

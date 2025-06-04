@@ -13,7 +13,7 @@ export default function FootballRewardSection() {
   return (
     <section
       id='rewards'
-      className='min-h-screen bg-[url("/rewards-bg.png")] bg-no-repeat bg-cover bg-center relative bg-fixed'
+      className='min-h-screen bg-[url("/how-bg.jpg")] bg-no-repeat bg-cover bg-center relative bg-fixed'
     >
       {/* Background Image with Overlay */}
       <div className='absolute inset-0'>

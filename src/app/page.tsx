@@ -13,7 +13,7 @@ const HomePage = () => {
     <div>
       <HeroSection />
 
-      <div className='bg-gradient-to-b from-[#51438c] via-[#3d326a] to-[#000000] pt-12 md:pt-24 pb-12 md:pb-56'>
+      <div className='bg-gradient-to-b from-[#51438c] via-[#292244] to-[#000000fc] pt-12 md:pt-24 pb-12 md:pb-56'>
         <FootballAiCoach />
         <ChatbotSection />
       </div>
