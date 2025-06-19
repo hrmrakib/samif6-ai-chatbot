@@ -109,7 +109,7 @@ export default function ChatbotSection() {
   const groupedChats = groupChatsByDate(chatSessions);
 
   const SidebarContent = () => (
-    <div className='flex flex-col h-full bg-black text-white'>
+    <div className='flex flex-col h-full bg-black text-white cursor-default'>
       {/* Logo */}
       <div className=''>
         <div className='flex items-center justify-center'>
@@ -164,7 +164,7 @@ export default function ChatbotSection() {
                       setCurrentChatId(chat.id);
                       setIsSidebarOpen(false);
                     }}
-                    className='w-full text-left px-3 py-2 rounded-lg text-gray-300 transition-colors'
+                    className='w-full text-left px-3 py-2 rounded-lg text-gray-300 transition-colors cursor-default'
                   >
                     {chat.name}
                   </button>
@@ -224,7 +224,7 @@ export default function ChatbotSection() {
   );
 
   return (
-    <section className='max-h-[99vh] container mx-auto  bg-gradient-to-br from-[#000000] via-[#000000] to-[#0000004c] rounded-3xl shadow-black/20 shadow-lg relative overflow-hidden'>
+    <section className='max-h-[99vh] container mx-auto  bg-gradient-to-br from-[#000000] via-[#000000] to-[#0000004c] rounded-3xl shadow-black/20 shadow-lg relative overflow-hidden cursor-default'>
       <div className='flex h-screen'>
         {/* Desktop Sidebar */}
         <div className='hidden md:block w-80'>
@@ -303,18 +303,12 @@ export default function ChatbotSection() {
                 <div className=''>
                   <div className='max-w-4xl mx-auto'>
                     <div className='relative h-28 md:h-32 flex gap-2 md:gap-4 bg-[#2d2d2d] rounded-2xl p-2'>
-                      {/* <Input
-                        placeholder='Ask Me About Anything Football...'
-                        className='flex-1 bg-transparent border-none text-white placeholder-gray-400 outline-none focus:ring-none text-sm md:text-base'
-                      /> */}
-
                       <p className='text-[#ffffff93] text-sm md:text-base flex-1 p-5'>
                         Hello! Ask me anything about Football!
                       </p>
                       <Button
                         onClick={handleSendMessage}
                         disabled={!inputValue.trim() || isLoading}
-                        //   size='icon'
                         className='absolute right-2 bottom-3 h-10 w-10 bg-[#534590] text-white rounded-full flex items-center justify-center transition-colors duration-200'
                       >
                         <ArrowRight

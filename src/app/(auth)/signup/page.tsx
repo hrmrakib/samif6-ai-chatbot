@@ -4,6 +4,7 @@ import type React from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
+import { useSignupMutation } from "@/redux/features/auth/authAPI";
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -19,7 +20,7 @@ export default function SignUpPage() {
     email?: string;
     password?: string;
   }>({});
-
+  const [signupMutation] = useSignupMutation();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -53,12 +54,13 @@ export default function SignUpPage() {
 
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
+    } else if (formData.password.length < 6) {
       newErrors.password = "Password must be at least 8 characters";
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
-      newErrors.password =
-        "Password must contain uppercase, lowercase, and number";
-    }
+    } 
+    // else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+    //   newErrors.password =
+    //     "Password must contain uppercase, lowercase, and number";
+    // }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -74,12 +76,17 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const data = {
+        full_name: formData?.name,
+        email: formData?.email,
+        password: formData?.password,
+      };
 
-      // Here you would typically make an API call to create account
-      console.log("Sign up attempt:", formData);
-      alert("Account created successfully! (This is a demo)");
+      // const user = JSON.stringify(data);
+
+      const res = await signupMutation(data).unwrap();
+
+      console.log({res});
     } catch (error) {
       console.error("Sign up error:", error);
       alert("Sign up failed. Please try again.");
