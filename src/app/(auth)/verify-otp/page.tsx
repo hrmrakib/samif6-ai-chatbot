@@ -3,6 +3,9 @@
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useVerifyOtpMutation } from "@/redux/features/auth/authAPI";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function VerifyOTPPage() {
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
@@ -11,6 +14,8 @@ export default function VerifyOTPPage() {
   const [resendTimer, setResendTimer] = useState(0);
   const [canResend, setCanResend] = useState(true);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const router = useRouter();
+  const [verifyOtpMutation] = useVerifyOtpMutation();
 
   // Timer effect for resend functionality
   useEffect(() => {
@@ -90,24 +95,20 @@ export default function VerifyOTPPage() {
     setIsLoading(true);
     setError("");
 
-    try {
-      // Simulate API call
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Simulate success/failure
-          if (otpString === "123456") {
-            resolve("success");
-          } else {
-            reject(new Error("Invalid OTP"));
-          }
-        }, 2000);
-      });
+    console.log(otpString);
 
-      alert("OTP verified successfully! (This is a demo)");
-      // Redirect to dashboard or next step
+    try {
+      const data = { otp: otpString };
+      const res = await verifyOtpMutation(data).unwrap();
+
+      if (res?.access_token) {
+        toast.success(res?.message);
+        localStorage.setItem("access_token", res?.access_token);
+        // await saveToken(res?.access_token);
+        router.push("/signin");
+      }
     } catch {
       setError("Invalid OTP. Please try again.");
-      // Clear OTP and focus first input
       setOtp(new Array(6).fill(""));
       inputRefs.current[0]?.focus();
     } finally {
@@ -123,9 +124,9 @@ export default function VerifyOTPPage() {
     setError("");
 
     try {
-      // Simulate API call to resend OTP
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      alert("OTP resent successfully! (This is a demo)");
+      const data = {
+        email: "test18@gmail.com",
+      };
 
       // Clear current OTP
       setOtp(new Array(6).fill(""));

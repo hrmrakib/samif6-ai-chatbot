@@ -1,11 +1,11 @@
 "use client";
 
+import { useLoginMutation } from "@/redux/features/auth/authAPI";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-
-import type React from "react";
-
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -18,6 +18,8 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {}
   );
+  const router = useRouter();
+  const [loginMutation] = useLoginMutation();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -64,12 +66,19 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const data = {
+        email: formData?.email,
+        password: formData?.password,
+      };
+      const res = await loginMutation(data).unwrap();
 
-      // Here you would typically make an API call to authenticate
-      console.log("Login attempt:", formData);
-      alert("Login successful! (This is a demo)");
+      if (res?.access_token) {
+        toast.success(res?.message);
+        localStorage.setItem("access_token", res?.access_token);
+        localStorage.setItem("samif6_user_email", formData?.email);
+        // await saveToken(res?.access_token);
+        router.push("/verify-otp");
+      }
     } catch (error) {
       console.error("Login error:", error);
       alert("Login failed. Please try again.");
@@ -164,7 +173,10 @@ export default function LoginPage() {
                 />
                 <span className='text-xl text-gray-600'>Remember</span>
               </label>
-              <Link href='/forget-password' className='text-xl text-gray-600 hover:text-purple-600 transition-colors duration-200'>
+              <Link
+                href='/forget-password'
+                className='text-xl text-gray-600 hover:text-purple-600 transition-colors duration-200'
+              >
                 Forget Password?
               </Link>
             </div>

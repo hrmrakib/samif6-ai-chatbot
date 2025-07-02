@@ -1,10 +1,13 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Camera, Eye, EyeOff } from "lucide-react";
 import { useSignupMutation } from "@/redux/features/auth/authAPI";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -20,6 +23,11 @@ export default function SignUpPage() {
     email?: string;
     password?: string;
   }>({});
+  const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
+
+  const router = useRouter();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [signupMutation] = useSignupMutation();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -34,6 +42,21 @@ export default function SignUpPage() {
         ...prev,
         [name]: undefined,
       }));
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfileImage(file); // <-- actual file
+      setProfilePreview(URL.createObjectURL(file)); // <-- preview
+    }
+  };
+
+  const handleImageClick = () => {
+    // Trigger file input click when avatar is clicked
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
     }
   };
 
@@ -56,7 +79,7 @@ export default function SignUpPage() {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
       newErrors.password = "Password must be at least 8 characters";
-    } 
+    }
     // else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
     //   newErrors.password =
     //     "Password must contain uppercase, lowercase, and number";
@@ -76,17 +99,29 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      const data = {
-        full_name: formData?.name,
-        email: formData?.email,
-        password: formData?.password,
-      };
+      const formDataToSend = new FormData();
 
-      // const user = JSON.stringify(data);
+      formDataToSend.append("full_name", formData.name);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("password", formData.password);
+      
+      if (profileImage) {
+        formDataToSend.append("profile_pic", profileImage);
+      }
+
+      const data = formDataToSend;
 
       const res = await signupMutation(data).unwrap();
 
-      console.log({res});
+      if (res?.access_token) {
+        toast.success(res?.message);
+        localStorage.setItem("access_token", res?.access_token);
+        localStorage.setItem("samif6_user_email", formData?.email);
+        // await saveToken(res?.access_token);
+        router.push("/verify-otp");
+      }
+
+      console.log({ res });
     } catch (error) {
       console.error("Sign up error:", error);
       alert("Sign up failed. Please try again.");
@@ -108,6 +143,44 @@ export default function SignUpPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className='space-y-6'>
+            <div className='relative mb-6 flex flex-col items-center'>
+              <input
+                type='file'
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                accept='image/*'
+                className='hidden'
+                aria-label='Upload profile picture'
+              />
+
+              <div
+                onClick={handleImageClick}
+                className='w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center relative cursor-pointer overflow-hidden group'
+              >
+                {profileImage ? (
+                  <Image
+                    src={profilePreview || "/placeholder.svg"}
+                    alt='Profile Preview'
+                    fill
+                    className='object-cover'
+                  />
+                ) : (
+                  <svg
+                    className='w-12 h-12 text-gray-500 group-hover:opacity-80 transition-opacity'
+                    fill='currentColor'
+                    viewBox='0 0 24 24'
+                  >
+                    <path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z' />
+                  </svg>
+                )}
+
+                {/* Camera icon overlay on hover */}
+                <div className='absolute inset-0 bg-gray-500 bg-opacity-40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity'>
+                  <Camera className='w-8 h-8 text-white' />
+                </div>
+              </div>
+            </div>
+
             {/* Name Field */}
             <div className='space-y-2'>
               <label
