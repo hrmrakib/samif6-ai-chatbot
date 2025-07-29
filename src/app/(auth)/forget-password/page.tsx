@@ -4,6 +4,8 @@ import type React from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useForgotPasswordMutation } from "@/redux/features/auth/authAPI";
+import { toast } from "sonner";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -11,6 +13,7 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [forgotPasswordMutation] = useForgotPasswordMutation();
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,17 +45,15 @@ export default function ForgotPasswordPage() {
 
     try {
       // Simulate API call to send reset OTP
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const res = await forgotPasswordMutation({ email }).unwrap();
 
-      // Here you would typically make an API call to send reset email/OTP
-      console.log("Password reset requested for:", email);
+      console.log(res);
 
-      setIsSuccess(true);
-
-      // Redirect to OTP verification page after a short delay
-      setTimeout(() => {
+      if (res?.success) {
+        toast.success(res?.message);
         router.push("/verify-otp");
-      }, 2000);
+        setIsSuccess(true);
+      }
     } catch (error) {
       console.error("Password reset error:", error);
       setError("Failed to send reset code. Please try again.");

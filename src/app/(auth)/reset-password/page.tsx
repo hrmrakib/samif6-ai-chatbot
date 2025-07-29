@@ -5,6 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { useResetPasswordMutation } from "@/redux/features/auth/authAPI";
 
 interface PasswordStrength {
   score: number;
@@ -28,6 +29,7 @@ export default function ResetPasswordPage() {
     confirmPassword?: string;
   }>({});
   const [isSuccess, setIsSuccess] = useState(false);
+  const [resetPasswordMutation] = useResetPasswordMutation();
 
   const calculatePasswordStrength = (password: string): PasswordStrength => {
     let score = 0;
@@ -85,12 +87,13 @@ export default function ResetPasswordPage() {
     // Validate new password
     if (!formData.newPassword) {
       newErrors.newPassword = "New password is required";
-    } else if (formData.newPassword.length < 8) {
-      newErrors.newPassword = "Password must be at least 8 characters";
-    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.newPassword)) {
-      newErrors.newPassword =
-        "Password must contain uppercase, lowercase, and number";
+    } else if (formData.newPassword.length < 6) {
+      newErrors.newPassword = "Password must be at least 6 characters";
     }
+    // else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.newPassword)) {
+    //   newErrors.newPassword =
+    //     "Password must contain uppercase, lowercase, and number";
+    // }
 
     // Validate confirm password
     if (!formData.confirmPassword) {
@@ -110,21 +113,17 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    setIsLoading(true);
-
     try {
-      // Simulate API call to reset password
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const res = await resetPasswordMutation({
+        new_password: formData.newPassword,
+        confirm_password: formData.confirmPassword,
+      }).unwrap();
 
-      // Here you would typically make an API call to update the password
-      console.log("Password reset for:", formData.newPassword);
-
-      setIsSuccess(true);
-
-      // Redirect to login page after success
-      setTimeout(() => {
-        router.push("/");
-      }, 3000);
+      console.log("Password reset for:", res);
+      if (res?.success) {
+        setIsSuccess(true);
+        router.push("/login");
+      }
     } catch (error) {
       console.error("Password reset error:", error);
       setErrors({ newPassword: "Failed to reset password. Please try again." });

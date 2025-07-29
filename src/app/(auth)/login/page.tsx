@@ -1,6 +1,7 @@
 "use client";
 
 import { useLoginMutation } from "@/redux/features/auth/authAPI";
+import { saveToken } from "@/service/authService";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -70,14 +71,16 @@ export default function LoginPage() {
         email: formData?.email,
         password: formData?.password,
       };
+
       const res = await loginMutation(data).unwrap();
 
       if (res?.access_token) {
         toast.success(res?.message);
         localStorage.setItem("access_token", res?.access_token);
-        localStorage.setItem("samif6_user_email", formData?.email);
-        // await saveToken(res?.access_token);
-        router.push("/verify-otp");
+        localStorage.setItem("refresh_token", res?.refresh_token);
+        localStorage.setItem("samif6_user", res?.user);
+        await saveToken(res?.access_token);
+        router.push("/");
       }
     } catch (error) {
       console.error("Login error:", error);

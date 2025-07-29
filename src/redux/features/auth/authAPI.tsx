@@ -4,14 +4,15 @@ const AuthenticationAPI = baseAPI.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (body) => ({
-        url: "/auth/login/",
+        url: "api/auth/login/",
         method: "POST",
         body,
       }),
     }),
+
     signup: builder.mutation({
       query: (data) => ({
-        url: "/auth/signup/",
+        url: "api/auth/signup/",
         method: "POST",
         body: data,
       }),
@@ -19,7 +20,7 @@ const AuthenticationAPI = baseAPI.injectEndpoints({
 
     verifyOtp: builder.mutation({
       query: (body) => ({
-        url: "/auth/verify-email/",
+        url: "api/auth/verify-email/",
         method: "POST",
         body,
       }),
@@ -35,7 +36,7 @@ const AuthenticationAPI = baseAPI.injectEndpoints({
 
     resendOtp: builder.mutation({
       query: (body) => ({
-        url: "/auth/resend-otp",
+        url: "api/auth/resend-otp/",
         method: "POST",
         body,
       }),
@@ -43,7 +44,26 @@ const AuthenticationAPI = baseAPI.injectEndpoints({
 
     forgotPassword: builder.mutation({
       query: (body) => ({
-        url: "/auth/forgot-password",
+        url: "api/auth/forget-password/",
+        method: "POST",
+        body,
+      }),
+    }),
+
+    resetPassword: builder.mutation({
+      query: (body) => ({
+        url: "api/auth/reset-password/",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        method: "POST",
+        body,
+      }),
+    }),
+
+    verifyForgetPasswordOtp: builder.mutation({
+      query: (body) => ({
+        url: "api/auth/verify/pass/otp/",
         method: "POST",
         body,
       }),
@@ -57,4 +77,8 @@ export const {
   useVerifyOtpMutation,
   useSendOtpMutation,
   useResendOtpMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+  useVerifyForgetPasswordOtpMutation,
 } = AuthenticationAPI;
+export default AuthenticationAPI;

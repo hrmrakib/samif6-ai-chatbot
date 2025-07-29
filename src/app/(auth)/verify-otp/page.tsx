@@ -3,9 +3,13 @@
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useVerifyOtpMutation } from "@/redux/features/auth/authAPI";
+import {
+  useResendOtpMutation,
+  useVerifyForgetPasswordOtpMutation,
+  useVerifyOtpMutation,
+} from "@/redux/features/auth/authAPI";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function VerifyOTPPage() {
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
@@ -14,8 +18,14 @@ export default function VerifyOTPPage() {
   const [resendTimer, setResendTimer] = useState(0);
   const [canResend, setCanResend] = useState(true);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const searchParams = useSearchParams();
+  const email = searchParams.get("email") || "";
+
   const router = useRouter();
   const [verifyOtpMutation] = useVerifyOtpMutation();
+  const [sendOtp] = useResendOtpMutation();
+  const [verifyForgetPasswordOtpMutation] =
+    useVerifyForgetPasswordOtpMutation();
 
   // Timer effect for resend functionality
   useEffect(() => {
@@ -95,17 +105,27 @@ export default function VerifyOTPPage() {
     setIsLoading(true);
     setError("");
 
-    console.log(otpString);
-
     try {
-      const data = { otp: otpString };
-      const res = await verifyOtpMutation(data).unwrap();
+      // forget password verification
+      if (!email) {
+        const data = { otp: String(otpString) };
+        const res = await verifyForgetPasswordOtpMutation(data).unwrap();
 
-      if (res?.access_token) {
-        toast.success(res?.message);
-        localStorage.setItem("access_token", res?.access_token);
-        // await saveToken(res?.access_token);
-        router.push("/signin");
+        if (res?.access_token) {
+          toast.success(res?.message);
+          localStorage.setItem("access_token", res?.access_token);
+          router.push("/reset-password");
+        }
+      } else {
+        const data = { email, otp: String(otpString) };
+        const res = await verifyOtpMutation(data).unwrap();
+
+        if (res?.access_token) {
+          toast.success(res?.message);
+          localStorage.setItem("access_token", res?.access_token);
+          // await saveToken(res?.access_token);
+          router.push("/login");
+        }
       }
     } catch {
       setError("Invalid OTP. Please try again.");
@@ -120,13 +140,16 @@ export default function VerifyOTPPage() {
     if (!canResend) return;
 
     setCanResend(false);
-    setResendTimer(60); // 60 seconds countdown
+    setResendTimer(100);
     setError("");
 
     try {
       const data = {
-        email: "test18@gmail.com",
+        email,
       };
+
+      const res = await sendOtp(data).unwrap();
+      console.log(res);
 
       // Clear current OTP
       setOtp(new Array(6).fill(""));
@@ -204,7 +227,7 @@ export default function VerifyOTPPage() {
 
           {/* Resend OTP */}
           <div className='text-center'>
-            <p className='text-[#574a8b] text-base font-medium'>
+            <p className='text-[#292830] text-base font-medium'>
               {"Don't Receive The OTP? "}
               {canResend ? (
                 <button

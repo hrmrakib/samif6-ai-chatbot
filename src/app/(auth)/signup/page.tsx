@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import type React from "react";
@@ -28,7 +29,7 @@ export default function SignUpPage() {
 
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [signupMutation] = useSignupMutation();
+  const [signup] = useSignupMutation();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -104,27 +105,37 @@ export default function SignUpPage() {
       formDataToSend.append("full_name", formData.name);
       formDataToSend.append("email", formData.email);
       formDataToSend.append("password", formData.password);
-      
+
       if (profileImage) {
         formDataToSend.append("profile_pic", profileImage);
       }
 
       const data = formDataToSend;
 
-      const res = await signupMutation(data).unwrap();
+      const res = await signup(data).unwrap();
+
+      // console.log(res);
 
       if (res?.access_token) {
         toast.success(res?.message);
         localStorage.setItem("access_token", res?.access_token);
-        localStorage.setItem("samif6_user_email", formData?.email);
-        // await saveToken(res?.access_token);
-        router.push("/verify-otp");
+        router.push("/verify-otp" + "?email=" + formData.email);
       }
 
       console.log({ res });
     } catch (error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "status" in error &&
+        (error as any).status === 400
+      ) {
+        const message =
+          (error as any)?.data?.errors?.email?.[0] || "Email already exists";
+        toast.error(message);
+      }
+
       console.error("Sign up error:", error);
-      alert("Sign up failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
