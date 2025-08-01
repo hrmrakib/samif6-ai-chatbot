@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store/store";
 
 const navigationLinks = [
   { name: "Home", href: "/" },
@@ -22,6 +24,9 @@ export default function Navbar() {
   const pathname = usePathname();
   const isActive = (href: string) => pathname === href;
   const router = useRouter();
+  const currentUser = useSelector((state: RootState) => state.user.user);
+
+  console.log({currentUser});
 
   if (
     pathname === "/login" ||

@@ -9,28 +9,32 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
+import Link from "next/link";
+import { useSendContactMutation } from "@/redux/features/contact/contactAPI";
+import { toast } from "sonner";
 
 interface FormData {
   name: string;
   email: string;
-  description: string;
+  message: string;
 }
 
 interface FormErrors {
   name?: string;
   email?: string;
-  description?: string;
+  message?: string;
 }
 
 export default function ContactSection() {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
-    description: "",
+    message: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [sendContactMutation] = useSendContactMutation();
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -55,10 +59,10 @@ export default function ContactSection() {
     }
 
     // Description validation
-    if (!formData.description.trim()) {
-      newErrors.description = "Description is required";
-    } else if (formData.description.trim().length < 10) {
-      newErrors.description = "Description must be at least 10 characters";
+    if (!formData.message.trim()) {
+      newErrors.message = "Description is required";
+    } else if (formData.message.trim().length < 10) {
+      newErrors.message = "Description must be at least 10 characters";
     }
 
     setErrors(newErrors);
@@ -83,20 +87,22 @@ export default function ContactSection() {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const res = await sendContactMutation(formData);
+      console.log(res);
 
-      console.log("Form submitted:", formData);
-      setIsSubmitted(true);
+      if (res.data?.id) {
+        setIsSubmitted(true);
+        toast("✅ Your message has been sent successfully!");
+      }
 
       // Reset form after successful submission
       setTimeout(() => {
-        setFormData({ name: "", email: "", description: "" });
+        setFormData({ name: "", email: "", message: "" });
         setIsSubmitted(false);
       }, 3000);
     } catch (error) {
       console.error("Submission error:", error);
-      setErrors({ description: "Failed to submit form. Please try again." });
+      setErrors({ message: "Failed to submit form. Please try again." });
     } finally {
       setIsSubmitting(false);
     }
@@ -217,31 +223,31 @@ export default function ContactSection() {
                   )}
                 </div>
 
-                {/* Description Field */}
+                {/* message Field */}
                 <div>
                   <Label
-                    htmlFor='description'
+                    htmlFor='message'
                     className='text-white text-xl font-medium mb-2 block'
                   >
-                    Write Your Descriptions
+                    Write Your Message
                   </Label>
                   <Textarea
-                    id='description'
-                    value={formData.description}
+                    id='message'
+                    value={formData.message}
                     onChange={(e) =>
-                      handleInputChange("description", e.target.value)
+                      handleInputChange("message", e.target.value)
                     }
                     placeholder='Football Club Is A Professional Organization That Manages A Team...'
                     rows={4}
                     className={` border-gray-700 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500 resize-none ${
-                      errors.description ? "border-red-500" : ""
+                      errors.message ? "border-red-500" : ""
                     }`}
                     disabled={isSubmitting}
                   />
-                  {errors.description && (
+                  {errors.message && (
                     <div className='flex items-center gap-1 mt-1 text-red-400 text-sm'>
                       <AlertCircle className='w-4 h-4' />
-                      {errors.description}
+                      {errors.message}
                     </div>
                   )}
                 </div>
@@ -270,13 +276,19 @@ export default function ContactSection() {
               <div className='mt-8 text-center'>
                 <p className='text-gray-400 text-sm'>
                   By submitting this form, you agree to our{" "}
-                  <button className='text-purple-400 hover:text-purple-300 underline'>
+                  <Link
+                    href='/privacy-policy'
+                    className='text-purple-400 hover:text-purple-300 underline'
+                  >
                     Privacy Policy
-                  </button>{" "}
+                  </Link>{" "}
                   and{" "}
-                  <button className='text-purple-400 hover:text-purple-300 underline'>
+                  <Link
+                    href='/terms-of-service'
+                    className='text-purple-400 hover:text-purple-300 underline'
+                  >
                     Terms of Service
-                  </button>
+                  </Link>
                   .
                 </p>
               </div>

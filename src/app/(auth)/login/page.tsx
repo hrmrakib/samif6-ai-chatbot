@@ -1,11 +1,13 @@
 "use client";
 
 import { useLoginMutation } from "@/redux/features/auth/authAPI";
+import { setCurrentUser } from "@/redux/features/auth/userSlice";
 import { saveToken } from "@/service/authService";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 
 export default function LoginPage() {
@@ -21,6 +23,7 @@ export default function LoginPage() {
   );
   const router = useRouter();
   const [loginMutation] = useLoginMutation();
+  const dispatch = useDispatch();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -71,7 +74,6 @@ export default function LoginPage() {
         email: formData?.email,
         password: formData?.password,
       };
-
       const res = await loginMutation(data).unwrap();
 
       if (res?.access_token) {
@@ -80,6 +82,7 @@ export default function LoginPage() {
         localStorage.setItem("refresh_token", res?.refresh_token);
         localStorage.setItem("samif6_user", res?.user);
         await saveToken(res?.access_token);
+        dispatch(setCurrentUser(res?.user));
         router.push("/");
       }
     } catch (error) {
