@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
 
 interface UserData {
   name: string;
@@ -39,6 +40,8 @@ export default function UserProfileDropdown() {
   const [activeSection, setActiveSection] = useState("profile");
   const router = useRouter();
 
+  const { data: user } = useGetProfileQuery({});
+
   // const handleProfileClick = () => {
   //   setActiveSection("profile");
   //   console.log("Navigate to profile page");
@@ -46,8 +49,7 @@ export default function UserProfileDropdown() {
 
   const handleTicketsClick = () => {
     setActiveSection("tickets");
-    console.log("Navigate to purchased tickets");
-    // Add navigation logic here
+    router.push("/profile/ticket");
   };
 
   const handleSettingsToggle = () => {
@@ -81,13 +83,13 @@ export default function UserProfileDropdown() {
               <div className='relative'>
                 <Avatar className='w-16 h-16'>
                   <AvatarImage
-                    src={userData.avatar || "/placeholder.svg"}
-                    alt={userData.name}
+                    src={`${process.env.NEXT_PUBLIC_IMAGE_URL}${user?.profile_pic}`}
+                    alt={user?.name}
                   />
                   <AvatarFallback className='bg-purple-100 text-purple-600 text-lg font-semibold'>
-                    {userData.name
+                    {user?.full_name
                       .split(" ")
-                      .map((n) => n[0])
+                      .map((n: string) => n[0])
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
@@ -101,11 +103,9 @@ export default function UserProfileDropdown() {
               </div>
               <div className='flex-1 min-w-0'>
                 <h3 className='font-semibold text-gray-900 text-lg truncate'>
-                  {userData.name}
+                  {user?.full_name}
                 </h3>
-                <p className='text-gray-600 text-sm truncate'>
-                  {userData.email}
-                </p>
+                <p className='text-gray-600 text-sm truncate'>{user?.email}</p>
                 <div className='flex items-center gap-2 mt-1'>
                   <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800'>
                     {userData.membershipTier}

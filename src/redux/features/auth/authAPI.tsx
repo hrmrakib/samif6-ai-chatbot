@@ -32,7 +32,7 @@ const AuthenticationAPI = baseAPI.injectEndpoints({
         method: "POST",
         body,
       }),
-    }),
+    }), 
 
     resendOtp: builder.mutation({
       query: (body) => ({

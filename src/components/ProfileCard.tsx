@@ -1,17 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Edit, Camera, Mail, User, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
+import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
 
 interface UserProfile {
-  name: string;
+  full_name: string;
   email: string;
-  avatar: string;
+  profile_pic?: string;
   bio?: string;
   phone?: string;
   location?: string;
@@ -20,15 +21,23 @@ interface UserProfile {
 export default function ProfileCard() {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState<UserProfile>({
-    name: "Marvin McKinney",
-    email: "Mckinny@Example.Com",
-    avatar: "/profile.jpg",
-    bio: "Football enthusiast and AI coach user",
-    phone: "+1 (555) 123-4567",
-    location: "New York, USA",
+    full_name: "",
+    email: "",
+    profile_pic: "/profile.jpg",
+    bio: "",
+    phone: "",
+    location: "",
   });
   const [editedProfile, setEditedProfile] = useState<UserProfile>(profile);
   const [isLoading, setIsLoading] = useState(false);
+  const { data: user } = useGetProfileQuery({});
+
+  useEffect(() => {
+    if (user) {
+      setProfile(user);
+      setEditedProfile(user);
+    }
+  }, [user]);
 
   const handleEditClick = () => {
     setIsEditing(true);
@@ -76,8 +85,11 @@ export default function ProfileCard() {
                 <div className='w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden bg-gradient-to-br from-purple-400 to-blue-500 p-1'>
                   <div className='w-full h-full rounded-xl overflow-hidden'>
                     <Image
-                      src={profile.avatar || "/placeholder.svg"}
-                      alt={profile.name}
+                      src={
+                        `${process.env.NEXT_PUBLIC_IMAGE_URL}${profile?.profile_pic}` ||
+                        "/placeholder.svg"
+                      }
+                      alt={profile?.full_name}
                       className='w-full h-full object-cover'
                       width={224}
                       height={224}
@@ -118,7 +130,7 @@ export default function ProfileCard() {
                       Name:
                     </Label>
                     <p className='text-gray-900 text-xl font-semibold mt-1'>
-                      {profile.name}
+                      {profile?.full_name}
                     </p>
                   </div>
 
@@ -128,7 +140,7 @@ export default function ProfileCard() {
                     </Label>
                     <div className='flex items-center gap-2 mt-1'>
                       <Mail className='w-4 h-4 text-gray-500' />
-                      <p className='text-gray-700'>{profile.email}</p>
+                      <p className='text-gray-700'>{profile?.email}</p>
                     </div>
                   </div>
 
@@ -137,7 +149,7 @@ export default function ProfileCard() {
                       <Label className='text-gray-600 text-sm font-medium'>
                         Bio:
                       </Label>
-                      <p className='text-gray-700 mt-1'>{profile.bio}</p>
+                      <p className='text-gray-700 mt-1'>{profile?.bio}</p>
                     </div>
                   )}
 
@@ -146,7 +158,7 @@ export default function ProfileCard() {
                       <Label className='text-gray-600 text-sm font-medium'>
                         Phone:
                       </Label>
-                      <p className='text-gray-700 mt-1'>{profile.phone}</p>
+                      <p className='text-gray-700 mt-1'>{profile?.phone}</p>
                     </div>
                   )}
 
@@ -155,7 +167,7 @@ export default function ProfileCard() {
                       <Label className='text-gray-600 text-sm font-medium'>
                         Location:
                       </Label>
-                      <p className='text-gray-700 mt-1'>{profile.location}</p>
+                      <p className='text-gray-700 mt-1'>{profile?.location}</p>
                     </div>
                   )}
 
@@ -179,9 +191,9 @@ export default function ProfileCard() {
                     </Label>
                     <Input
                       id='name'
-                      value={editedProfile.name}
+                      value={editedProfile?.full_name}
                       onChange={(e) =>
-                        handleInputChange("name", e.target.value)
+                        handleInputChange("full_name", e.target.value)
                       }
                       className='mt-1'
                       placeholder='Enter your name'
