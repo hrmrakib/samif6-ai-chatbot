@@ -84,8 +84,6 @@ export default function ContactSection() {
       return;
     }
 
-    setIsSubmitting(true);
-
     try {
       const res = await sendContactMutation(formData);
       console.log(res);
@@ -95,11 +93,10 @@ export default function ContactSection() {
         toast("✅ Your message has been sent successfully!");
       }
 
-      // Reset form after successful submission
       setTimeout(() => {
         setFormData({ name: "", email: "", message: "" });
         setIsSubmitted(false);
-      }, 3000);
+      } , 3000);
     } catch (error) {
       console.error("Submission error:", error);
       setErrors({ message: "Failed to submit form. Please try again." });

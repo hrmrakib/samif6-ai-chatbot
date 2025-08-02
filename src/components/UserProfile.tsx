@@ -55,8 +55,8 @@ export default function UserProfileDropdown() {
   };
 
   const handleSettingsItemClick = (item: string) => {
-    console.log(`Navigate to ${item}`);
-    // Add navigation logic for settings items
+    router.push(`${item}`);
+    setIsSettingsExpanded(false);
   };
 
   const handleLogout = () => {
@@ -172,21 +172,21 @@ export default function UserProfileDropdown() {
               {isSettingsExpanded && (
                 <div className='ml-8 mt-1 space-y-1'>
                   <button
-                    onClick={() => handleSettingsItemClick("privacy")}
+                    onClick={() => handleSettingsItemClick("privacy-policy")}
                     className='w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left text-gray-600 hover:bg-gray-100 transition-colors duration-200 text-sm'
                   >
                     <Shield className='w-4 h-4' />
                     Privacy & Policy
                   </button>
                   <button
-                    onClick={() => handleSettingsItemClick("safety")}
+                    onClick={() => handleSettingsItemClick("trust-safety")}
                     className='w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left text-gray-600 hover:bg-gray-100 transition-colors duration-200 text-sm'
                   >
                     <Shield className='w-4 h-4' />
                     Trust & Safety
                   </button>
                   <button
-                    onClick={() => handleSettingsItemClick("terms")}
+                    onClick={() => handleSettingsItemClick("terms-of-service")}
                     className='w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left text-gray-600 hover:bg-gray-100 transition-colors duration-200 text-sm'
                   >
                     <FileText className='w-4 h-4' />

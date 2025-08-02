@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import NavbarTransparent from "./NavbarTransparent";
+import Link from "next/link";
 
 export default function HeroSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -12,12 +13,6 @@ export default function HeroSection() {
       videoRef.current.play();
     }
   }, []);
-
-  const handleUnlockVault = () => {
-    // Add your unlock vault functionality here
-    console.log("Unlock The Vault clicked!");
-    // You can redirect to a signup page, open a modal, etc.
-  };
 
   return (
     <section className='relative h-[600px] md:min-h-screen flex items-center justify-center overflow-hidden'>
@@ -75,13 +70,14 @@ export default function HeroSection() {
 
         {/* CTA Button */}
         <div className='flex justify-center'>
-          <Button
-            onClick={handleUnlockVault}
-            size='lg'
-            className='bg-[#534590] hover:bg-[#534590] text-white text-lg sm:text-2xl px-8 sm:px-12 py-4 sm:py-6 rounded-full font-normal transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25'
-          >
-            Unlock The Vault
-          </Button>
+          <Link href='#membership'>
+            <Button
+              size='lg'
+              className='bg-[#534590] hover:bg-[#534590] text-white text-lg sm:text-2xl px-8 sm:px-12 py-4 sm:py-6 rounded-full font-normal transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25'
+            >
+              Unlock The Vault
+            </Button>
+          </Link>
         </div>
       </div>
 

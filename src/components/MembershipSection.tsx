@@ -108,7 +108,7 @@ export default function MembershipSection() {
     // Here you would typically redirect to checkout or open a payment modal
     router.push(`/payment?plan=${planId}&cycle=${billingCycle}`);
   };
-
+ 
   return (
     <section id='membership' className='min-h-screen bg-[#000] py-16 lg:py-24'>
       <div className='container mx-auto px-4'>

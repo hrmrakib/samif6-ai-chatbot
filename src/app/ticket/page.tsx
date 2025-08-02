@@ -1,35 +1,49 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  useGetTicketsQuery,
+  useTicketCheckoutMutation,
+} from "@/redux/features/ticket/ticketAPI";
 
-interface TicketData {
-  id: string;
-  eventName: string;
-  eventDate: string;
-  venue: string;
-  organizer: string;
-  totalTickets: number;
-  availableTickets: number;
-  price: number;
-  currency: string;
-  attendeeName: string;
+interface Ticket {
+  id: number;
+  ticket_id: string;
+  title: string;
+  description: string;
+  price: string;
+  total_available: number;
+  ticket_expiry_date: string;
+  is_available: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export default function TicketDetailsPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [ticketData, setTicketData] = useState<TicketData>({
-    id: "GFV2024-001",
-    eventName: "3x World Cup 2024 Tickets / Athens",
-    eventDate: "2024-12-15",
-    venue: "Athens Olympic Stadium",
-    organizer: "GFV",
-    totalTickets: 100,
-    availableTickets: 25,
-    price: 299,
-    currency: "$",
-    attendeeName: "Jhon Abraham",
+  const [ticketQuantity, setTicketQuantity] = useState(1);
+  const [ticketCheckoutMutation] = useTicketCheckoutMutation();
+  const [ticketData, setTicketData] = useState<Ticket>({
+    id: 0,
+    ticket_id: "",
+    title: "",
+    description: "",
+    price: "",
+    total_available: 0,
+    ticket_expiry_date: "",
+    is_available: false,
+    created_at: "",
+    updated_at: "",
   });
+
+  const { data: tickets } = useGetTicketsQuery({});
+
+  useEffect(() => {
+    if (tickets) {
+      setTicketData(tickets[0]);
+    }
+  }, [tickets]);
 
   // Generate barcode pattern
   const generateBarcode = () => {
@@ -55,7 +69,7 @@ export default function TicketDetailsPage() {
   const [qrPattern] = useState(generateQRPattern());
 
   const handlePurchase = async () => {
-    if (ticketData.availableTickets <= 0) {
+    if (ticketData.total_available <= 0) {
       alert("Sorry, no tickets available!");
       return;
     }
@@ -63,17 +77,22 @@ export default function TicketDetailsPage() {
     setIsLoading(true);
 
     try {
-      // Simulate API call for ticket purchase
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const res = await ticketCheckoutMutation({
+        quantity: ticketQuantity,
+      });
 
-      // Update available tickets
+      console.log(res);
+      if (res?.data?.success) {
+        window.location.href = res?.data?.session_id;
+      }
+
       setTicketData((prev) => ({
         ...prev,
-        availableTickets: prev.availableTickets - 1,
+        availableTickets: prev.total_available - 1,
       }));
 
       // Redirect to payment page
-      router.push("/payment");
+      // router.push("/payment");
     } catch (error) {
       console.error("Purchase error:", error);
       alert("Failed to purchase ticket. Please try again.");
@@ -105,7 +124,7 @@ export default function TicketDetailsPage() {
                 Total Available Tickets:{" "}
               </span>
               <span className='text-red-500 font-bold text-lg'>
-                {ticketData.availableTickets}
+                {ticketData?.total_available}
               </span>
             </div>
           </div>
@@ -119,27 +138,26 @@ export default function TicketDetailsPage() {
                   {/* Event Info */}
                   <div className='space-y-2'>
                     <h2 className='text-lg md:text-xl font-bold'>
-                      {ticketData.eventName}
+                      {ticketData?.title}
                     </h2>
                     <p className='text-purple-200 text-sm'>
-                      {ticketData.organizer}
+                      {ticketData?.description}
                     </p>
                   </div>
 
                   {/* Event Details */}
                   <div className='space-y-1 text-sm'>
                     <p className='text-purple-100'>
-                      Date: {formatDate(ticketData.eventDate)}
+                      Date: {formatDate(ticketData?.ticket_expiry_date)}
                     </p>
-                    <p className='text-purple-100'>Venue: {ticketData.venue}</p>
                   </div>
 
                   {/* Attendee Name */}
-                  <div className='pt-4'>
+                  {/* <div className='pt-4'>
                     <p className='text-white font-semibold text-lg'>
-                      {ticketData.attendeeName}
+                      {ticketData?.attendeeName}
                     </p>
-                  </div>
+                  </div> */}
 
                   {/* Barcode */}
                   <div className='pt-4'>
@@ -153,8 +171,8 @@ export default function TicketDetailsPage() {
                         />
                       ))}
                     </div>
-                    <p className='text-xs text-purple-200 mt-1'>
-                      ID: {ticketData.id}
+                    <p className='text-sm text-purple-200 mt-1'>
+                      ID: {ticketData?.ticket_id}
                     </p>
                   </div>
                 </div>
@@ -183,10 +201,7 @@ export default function TicketDetailsPage() {
                   {/* Price */}
                   <div className='text-white text-center'>
                     <p className='text-xs'>Price</p>
-                    <p className='font-bold'>
-                      {ticketData.currency}
-                      {ticketData.price}
-                    </p>
+                    <p className='font-bold'>${ticketData?.price}</p>
                   </div>
                 </div>
               </div>
@@ -205,23 +220,37 @@ export default function TicketDetailsPage() {
           </div>
 
           {/* Event Description */}
-          <div className='space-y-4'>
+          <div className='space-y-3'>
             <p className='text-gray-600 leading-relaxed text-center'>
-              There Are {ticketData.availableTickets} Tickets Available Now For
-              The Upcoming Global Football Vault. This Event, Organized By{" "}
-              {ticketData.organizer}, Is A Concert Experience Featuring Popular
-              Event US, Including Global Football Vault. Tickets Can Be
-              Purchased Through.
+              There Are {ticketData?.total_available} Tickets Available Now For
+              The Upcoming Global Football Vault. This Event, Organized By US,
+              Is A Concert Experience Featuring Popular Event US, Including
+              Global Football Vault. Tickets Can Be Purchased Through.
             </p>
           </div>
 
           {/* Purchase Button */}
-          <div className='text-center'>
+          <div className='text-center flex flex-col items-center gap-6'>
+            <input
+              type='number'
+              value={ticketQuantity}
+              min='1'
+              max={ticketData?.total_available}
+              placeholder='Enter quantity'
+              required
+              onChange={(e) => setTicketQuantity(Number(e.target.value))}
+              className='w-40 px-2 py-1.5 border border-gray-400 rounded-full outline-none focus:ring-2 focus:ring-purple-500'
+            />
             <button
+              type='button'
               onClick={handlePurchase}
-              disabled={isLoading || ticketData.availableTickets <= 0}
-              className={`px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 ${
-                ticketData.availableTickets <= 0
+              disabled={
+                isLoading ||
+                ticketData?.total_available <= 0 ||
+                ticketQuantity <= 0
+              }
+              className={`px-8 py-4 rounded-full font-semibold text-white transition-all disabled:cursor-not-allowed duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 ${
+                ticketData?.total_available <= 0
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
               }`}
@@ -231,7 +260,7 @@ export default function TicketDetailsPage() {
                   <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
                   <span>Processing...</span>
                 </div>
-              ) : ticketData.availableTickets <= 0 ? (
+              ) : ticketData?.total_available <= 0 ? (
                 "Sold Out"
               ) : (
                 "Purchase Now"

@@ -1,14 +1,25 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useGetTicketsQuery } from "@/redux/features/ticket/ticketAPI";
 import Link from "next/link";
+import Loading from "./Loading";
+
+interface Ticket {
+  id: number;
+  ticket_id: string;
+  title: string;
+  description: string;
+  price: string;
+  total_available: number;
+  ticket_expiry_date: string;
+  is_available: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 export default function FootballRewardSection() {
-  const handleUnlockVault = () => {
-    console.log("Unlock The Vault clicked!");
-    // Add your unlock functionality here
-    // Could redirect to signup, open modal, etc.
-  };
+  const { data: tickets, isLoading } = useGetTicketsQuery({});
 
   return (
     <section
@@ -43,88 +54,55 @@ export default function FootballRewardSection() {
 
         {/* Tickets Display */}
         <div className='flex flex-col items-center gap-8 mb-16'>
-          <Link href='/ticket' className='w-full max-w-lg'>
-            <div className='bg-gradient-to-r from-purple-600 to-blue-600 opacity-90 rounded-lg p-6 text-white shadow-2xl relative'>
-              <div className='flex justify-between items-start mb-4'>
-                <div className='flex-1'>
-                  <h3 className='font-bold text-lg sm:text-xl mb-1'>
-                    World Cup 2026 Tickets + Airfare
-                  </h3>
-                  <p className='text-sm opacity-90'>Global Football Vault</p>
-                </div>
-                <div className='ml-4'>
-                  <div className='w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center'>
-                    <div className='w-8 h-8 bg-white rounded-sm flex items-center justify-center'>
-                      <div className='w-6 h-6 bg-black rounded-sm grid grid-cols-3 gap-px p-1'>
-                        {Array.from({ length: 9 }).map((_, i) => (
-                          <div key={i} className='bg-white rounded-sm' />
-                        ))}
+          {tickets?.map((ticket: Ticket) => (
+            <Link key={ticket?.id} href='/ticket' className='w-full max-w-lg'>
+              <div className='bg-gradient-to-r from-purple-600 to-blue-600 opacity-90 rounded-lg p-6 text-white shadow-2xl relative'>
+                <div className='flex justify-between items-start mb-4'>
+                  <div className='flex-1'>
+                    <h3 className='font-bold text-lg sm:text-xl mb-1'>
+                      {ticket?.title}
+                    </h3>
+                    <p className='text-sm opacity-90'>{ticket?.description}</p>
+                  </div>
+                  <div className='ml-4'>
+                    <div className='w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center'>
+                      <div className='w-8 h-8 bg-white rounded-sm flex items-center justify-center'>
+                        <div className='w-6 h-6 bg-black rounded-sm grid grid-cols-3 gap-px p-1'>
+                          {Array.from({ length: 9 }).map((_, i) => (
+                            <div key={i} className='bg-white rounded-sm' />
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className='flex justify-between items-end'>
-                <div>
-                  <p className='text-sm opacity-75'>Name</p>
-                  <p className='font-semibold'>John Abraham</p>
-                </div>
-                <div className='text-right'>
-                  <div className='font-mono text-xs mb-1'>
-                    |||||||||||||||||||
+                <div className='flex justify-between items-end'>
+                  <div>
+                    <p className='font-semibold'>Price: {ticket?.price}</p>
+                    <p className='text-sm opacity-75'>
+                      Available: {ticket?.total_available}
+                    </p>
                   </div>
-                  <p className='text-xs opacity-75'>#000001</p>
-                </div>
-              </div>
-
-              <div className='absolute right-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -mr-3' />
-              <div className='absolute left-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -ml-3' />
-            </div>
-          </Link>
-
-          {/* Second Ticket - Madrid Jersey */}
-          <Link href='/ticket' className='w-full max-w-lg'>
-            <div className='bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg p-6 text-white shadow-2xl relative'>
-              {/* Ticket Content */}
-              <div className='flex justify-between items-start mb-4'>
-                <div className='flex-1'>
-                  <h3 className='font-bold text-lg sm:text-xl mb-1'>
-                    Signed Team Real Madrid Jersey
-                  </h3>
-                  <p className='text-sm opacity-90'>Global Football Vault</p>
-                </div>
-                <div className='ml-4'>
-                  <div className='w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center'>
-                    <div className='w-8 h-8 bg-white rounded-sm flex items-center justify-center'>
-                      <div className='w-6 h-6 bg-black rounded-sm grid grid-cols-3 gap-px p-1'>
-                        {Array.from({ length: 9 }).map((_, i) => (
-                          <div key={i} className='bg-white rounded-sm' />
-                        ))}
-                      </div>
+                  <div className='text-right'>
+                    <div className='font-mono text-xs mb-1'>
+                      |||||||||||||||||||
                     </div>
+                    <p className='text-xs opacity-75'>#{ticket?.ticket_id}</p>
                   </div>
                 </div>
-              </div>
 
-              <div className='flex justify-between items-end'>
-                <div>
-                  <p className='text-sm opacity-75'>Name</p>
-                  <p className='font-semibold'>John Abraham</p>
-                </div>
-                <div className='text-right'>
-                  <div className='font-mono text-xs mb-1'>
-                    |||||||||||||||||||
-                  </div>
-                  <p className='text-xs opacity-75'>#000002</p>
-                </div>
+                <div className='absolute right-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -mr-3' />
+                <div className='absolute left-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -ml-3' />
               </div>
+            </Link>
+          ))}
 
-              {/* Ticket perforation holes */}
-              <div className='absolute right-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -mr-3' />
-              <div className='absolute left-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -ml-3' />
+          {isLoading && (
+            <div className='text-center text-gray-400'>
+              <Loading />
             </div>
-          </Link>
+          )}
         </div>
 
         {/* Bottom Section */}
@@ -134,13 +112,14 @@ export default function FootballRewardSection() {
             Could You Ask For?
           </p>
 
-          <Button
-            onClick={handleUnlockVault}
-            size='lg'
-            className='bg-purple-600 hover:bg-purple-700 text-white text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 rounded-full font-semibold transition-all duration-300'
-          >
-            Unlock The Vault
-          </Button>
+          <Link href='#membership'>
+            <Button
+              size='lg'
+              className='bg-purple-600 hover:bg-purple-700 text-white text-lg sm:text-xl px-8 sm:px-12 py-4 sm:py-6 rounded-full font-semibold transition-all duration-300'
+            >
+              Unlock The Vault
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
