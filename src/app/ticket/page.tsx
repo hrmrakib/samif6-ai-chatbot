@@ -1,10 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   useGetTicketsQuery,
   useTicketCheckoutMutation,
 } from "@/redux/features/ticket/ticketAPI";
+import Loading from "@/components/Loading";
+import { toast } from "sonner";
 
 interface Ticket {
   id: number;
@@ -20,7 +21,6 @@ interface Ticket {
 }
 
 export default function TicketDetailsPage() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [ticketQuantity, setTicketQuantity] = useState(1);
   const [ticketCheckoutMutation] = useTicketCheckoutMutation();
@@ -37,13 +37,28 @@ export default function TicketDetailsPage() {
     updated_at: "",
   });
 
-  const { data: tickets } = useGetTicketsQuery({});
+  const { data, isLoading: ticketsLoading } = useGetTicketsQuery({});
+
+  console.log(data?.ticket);
 
   useEffect(() => {
-    if (tickets) {
-      setTicketData(tickets[0]);
+    if (data?.ticket) {
+      setTicketData(
+        data?.ticket || {
+          id: 0,
+          ticket_id: "",
+          title: "",
+          description: "",
+          price: "",
+          total_available: 0,
+          ticket_expiry_date: "",
+          is_available: false,
+          created_at: "",
+          updated_at: "",
+        }
+      );
     }
-  }, [tickets]);
+  }, [data?.ticket]);
 
   // Generate barcode pattern
   const generateBarcode = () => {
@@ -81,7 +96,10 @@ export default function TicketDetailsPage() {
         quantity: ticketQuantity,
       });
 
-      console.log(res);
+      if (res?.error?.status) {
+        toast("✖️ User does not have an active subscription.");
+      }
+
       if (res?.data?.success) {
         window.location.href = res?.data?.session_id;
       }
@@ -113,161 +131,163 @@ export default function TicketDetailsPage() {
   return (
     <div className='min-h-screen bg-[url("/auth-bg.png")] bg-no-repeat bg-cover bg-center relative z-[1] flex items-center justify-center p-4'>
       <div className='w-full max-w-2xl'>
-        <div className='bg-white rounded-3xl shadow-2xl p-8 space-y-8'>
-          {/* Header */}
-          <div className='flex justify-between items-center'>
-            <h1 className='text-2xl md:text-3xl font-bold text-gray-800'>
-              Ticket Details
-            </h1>
-            <div className='text-right'>
-              <span className='text-sm text-gray-600'>
-                Total Available Tickets:{" "}
-              </span>
-              <span className='text-red-500 font-bold text-lg'>
-                {ticketData?.total_available}
-              </span>
+        {ticketsLoading ? (
+          <Loading />
+        ) : (
+          <div className='bg-white rounded-3xl shadow-2xl p-8 space-y-8'>
+            {/* Header */}
+            <div className='flex justify-between items-center'>
+              <h1 className='text-2xl md:text-3xl font-bold text-gray-800'>
+                Ticket Details
+              </h1>
+              <div className='text-right'>
+                <span className='text-sm text-gray-600'>
+                  Total Available Tickets:{" "}
+                </span>
+                <span className='text-red-500 font-bold text-lg'>
+                  {ticketData?.total_available}
+                </span>
+              </div>
             </div>
-          </div>
 
-          {/* Ticket Design */}
-          <div className='relative'>
-            <div className='bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl overflow-hidden shadow-xl'>
-              <div className='flex'>
-                {/* Main Ticket Body */}
-                <div className='flex-1 p-6 text-white space-y-4'>
-                  {/* Event Info */}
-                  <div className='space-y-2'>
-                    <h2 className='text-lg md:text-xl font-bold'>
-                      {ticketData?.title}
-                    </h2>
-                    <p className='text-purple-200 text-sm'>
-                      {ticketData?.description}
-                    </p>
-                  </div>
+            {/* Ticket Design */}
 
-                  {/* Event Details */}
-                  <div className='space-y-1 text-sm'>
-                    <p className='text-purple-100'>
-                      Date: {formatDate(ticketData?.ticket_expiry_date)}
-                    </p>
-                  </div>
-
-                  {/* Attendee Name */}
-                  {/* <div className='pt-4'>
-                    <p className='text-white font-semibold text-lg'>
-                      {ticketData?.attendeeName}
-                    </p>
-                  </div> */}
-
-                  {/* Barcode */}
-                  <div className='pt-4'>
-                    <div className='flex space-x-px'>
-                      {barcodePattern.map((bar, index) => (
-                        <div
-                          key={index}
-                          className={`w-1 ${
-                            bar === "1" ? "h-8 bg-white" : "h-6 bg-white/70"
-                          }`}
-                        />
-                      ))}
+            <div className='relative'>
+              <div className='bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl overflow-hidden shadow-xl'>
+                <div className='flex'>
+                  {/* Main Ticket Body */}
+                  <div className='flex-1 p-6 text-white space-y-4'>
+                    {/* Event Info */}
+                    <div className='space-y-2'>
+                      <h2 className='text-lg md:text-xl font-bold'>
+                        {ticketData?.title}
+                      </h2>
+                      <p className='text-purple-200 text-sm'>
+                        {ticketData?.description}
+                      </p>
                     </div>
-                    <p className='text-sm text-purple-200 mt-1'>
-                      ID: {ticketData?.ticket_id}
-                    </p>
-                  </div>
-                </div>
 
-                {/* Ticket Stub */}
-                <div className='w-24 bg-white/10 backdrop-blur-sm border-l-2 border-dashed border-white/30 flex flex-col items-center justify-center p-4 space-y-4'>
-                  {/* QR Code */}
-                  <div className='bg-white p-2 rounded'>
-                    <div className='grid grid-cols-8 gap-px'>
-                      {qrPattern.map((pixel, index) => (
-                        <div
-                          key={index}
-                          className={`w-1 h-1 ${
-                            pixel ? "bg-black" : "bg-white"
-                          }`}
-                        />
-                      ))}
+                    {/* Event Details */}
+                    <div className='space-y-1 text-sm'>
+                      <p className='text-purple-100'>
+                        Date: {formatDate(ticketData?.ticket_expiry_date)}
+                      </p>
+                    </div>
+
+                    {/* Barcode */}
+                    <div className='pt-4'>
+                      <div className='flex space-x-px'>
+                        {barcodePattern.map((bar, index) => (
+                          <div
+                            key={index}
+                            className={`w-1 ${
+                              bar === "1" ? "h-8 bg-white" : "h-6 bg-white/70"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <p className='text-sm text-purple-200 mt-1'>
+                        ID: {ticketData?.ticket_id}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Vertical Text */}
-                  <div className='transform rotate-90 text-white text-xs font-medium whitespace-nowrap'>
-                    ADMIT ONE
-                  </div>
+                  {/* Ticket Stub */}
+                  <div className='w-24 bg-white/10 backdrop-blur-sm border-l-2 border-dashed border-white/30 flex flex-col items-center justify-center p-4 space-y-4'>
+                    {/* QR Code */}
+                    <div className='bg-white p-2 rounded'>
+                      <div className='grid grid-cols-8 gap-px'>
+                        {qrPattern.map((pixel, index) => (
+                          <div
+                            key={index}
+                            className={`w-1 h-1 ${
+                              pixel ? "bg-black" : "bg-white"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
 
-                  {/* Price */}
-                  <div className='text-white text-center'>
-                    <p className='text-xs'>Price</p>
-                    <p className='font-bold'>${ticketData?.price}</p>
+                    {/* Vertical Text */}
+                    <div className='transform rotate-90 text-white text-xs font-medium whitespace-nowrap'>
+                      ADMIT ONE
+                    </div>
+
+                    {/* Price */}
+                    <div className='text-white text-center'>
+                      <p className='text-xs'>Price</p>
+                      <p className='font-bold'>${ticketData?.price}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Perforated Edge Effect */}
-              <div className='absolute right-24 top-0 bottom-0 w-px'>
-                {Array.from({ length: 20 }, (_, i) => (
-                  <div
-                    key={i}
-                    className='absolute w-3 h-3 bg-white rounded-full transform -translate-x-1/2'
-                    style={{ top: `${(i + 1) * 5}%` }}
-                  />
-                ))}
+                {/* Perforated Edge Effect */}
+                <div className='absolute right-24 top-0 bottom-0 w-px'>
+                  {Array.from({ length: 20 }, (_, i) => (
+                    <div
+                      key={i}
+                      className='absolute w-3 h-3 bg-white rounded-full transform -translate-x-1/2'
+                      style={{ top: `${(i + 1) * 5}%` }}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Event Description */}
-          <div className='space-y-3'>
-            <p className='text-gray-600 leading-relaxed text-center'>
-              There Are {ticketData?.total_available} Tickets Available Now For
-              The Upcoming Global Football Vault. This Event, Organized By US,
-              Is A Concert Experience Featuring Popular Event US, Including
-              Global Football Vault. Tickets Can Be Purchased Through.
-            </p>
-          </div>
+            {/* Event Description */}
+            <div className='space-y-3'>
+              <p className='text-gray-600 leading-relaxed text-center'>
+                There Are {ticketData?.total_available} Tickets Available Now
+                For The Upcoming Global Football Vault. This Event, Organized By
+                US, Is A Concert Experience Featuring Popular Event US,
+                Including Global Football Vault. Tickets Can Be Purchased
+                Through.
+              </p>
+            </div>
 
-          {/* Purchase Button */}
-          <div className='text-center flex flex-col items-center gap-6'>
-            <input
-              type='number'
-              value={ticketQuantity}
-              min='1'
-              max={ticketData?.total_available}
-              placeholder='Enter quantity'
-              required
-              onChange={(e) => setTicketQuantity(Number(e.target.value))}
-              className='w-40 px-2 py-1.5 border border-gray-400 rounded-full outline-none focus:ring-2 focus:ring-purple-500'
-            />
-            <button
-              type='button'
-              onClick={handlePurchase}
-              disabled={
-                isLoading ||
-                ticketData?.total_available <= 0 ||
-                ticketQuantity <= 0
-              }
-              className={`px-8 py-4 rounded-full font-semibold text-white transition-all disabled:cursor-not-allowed duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 ${
-                ticketData?.total_available <= 0
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
-              }`}
-            >
-              {isLoading ? (
-                <div className='flex items-center space-x-2'>
-                  <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
-                  <span>Processing...</span>
-                </div>
-              ) : ticketData?.total_available <= 0 ? (
-                "Sold Out"
-              ) : (
-                "Purchase Now"
-              )}
-            </button>
+            {/* Purchase Button */}
+            <div className='text-center flex flex-col items-center gap-6'>
+              <div className='flex flex-col items-start gap-1'>
+                <label className='text-gray-600'>Quantity:</label>
+                <input
+                  type='number'
+                  value={ticketQuantity}
+                  min='1'
+                  max={ticketData?.total_available}
+                  placeholder='Enter quantity'
+                  required
+                  onChange={(e) => setTicketQuantity(Number(e.target.value))}
+                  className='w-40 px-2 py-1.5 border border-gray-400 rounded-full outline-none focus:ring-2 focus:ring-purple-500'
+                />
+              </div>
+              <button
+                type='button'
+                onClick={handlePurchase}
+                disabled={
+                  isLoading ||
+                  ticketData?.total_available <= 0 ||
+                  ticketQuantity <= 0
+                }
+                className={`px-8 py-4 rounded-full font-semibold text-white transition-all disabled:cursor-not-allowed duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 ${
+                  ticketData?.total_available <= 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
+                }`}
+              >
+                {isLoading ? (
+                  <div className='flex items-center space-x-2'>
+                    <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                    <span>Processing...</span>
+                  </div>
+                ) : ticketData?.total_available <= 0 ? (
+                  "Sold Out"
+                ) : (
+                  "Purchase Now"
+                )}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

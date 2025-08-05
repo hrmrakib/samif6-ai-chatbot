@@ -5,21 +5,8 @@ import { useGetTicketsQuery } from "@/redux/features/ticket/ticketAPI";
 import Link from "next/link";
 import Loading from "./Loading";
 
-interface Ticket {
-  id: number;
-  ticket_id: string;
-  title: string;
-  description: string;
-  price: string;
-  total_available: number;
-  ticket_expiry_date: string;
-  is_available: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
 export default function FootballRewardSection() {
-  const { data: tickets, isLoading } = useGetTicketsQuery({});
+  const { data, isLoading } = useGetTicketsQuery({});
 
   return (
     <section
@@ -54,15 +41,25 @@ export default function FootballRewardSection() {
 
         {/* Tickets Display */}
         <div className='flex flex-col items-center gap-8 mb-16'>
-          {tickets?.map((ticket: Ticket) => (
-            <Link key={ticket?.id} href='/ticket' className='w-full max-w-lg'>
+          {isLoading ? (
+            <div className='text-center text-gray-400'>
+              <Loading />
+            </div>
+          ) : (
+            <Link
+              key={data?.ticket?.id}
+              href='/ticket'
+              className='w-full max-w-lg'
+            >
               <div className='bg-gradient-to-r from-purple-600 to-blue-600 opacity-90 rounded-lg p-6 text-white shadow-2xl relative'>
                 <div className='flex justify-between items-start mb-4'>
                   <div className='flex-1'>
                     <h3 className='font-bold text-lg sm:text-xl mb-1'>
-                      {ticket?.title}
+                      {data?.ticket?.title}
                     </h3>
-                    <p className='text-sm opacity-90'>{ticket?.description}</p>
+                    <p className='text-sm opacity-90'>
+                      {data?.ticket?.description}
+                    </p>
                   </div>
                   <div className='ml-4'>
                     <div className='w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center'>
@@ -79,16 +76,20 @@ export default function FootballRewardSection() {
 
                 <div className='flex justify-between items-end'>
                   <div>
-                    <p className='font-semibold'>Price: {ticket?.price}</p>
+                    <p className='font-semibold'>
+                      Price: {data?.ticket?.price}
+                    </p>
                     <p className='text-sm opacity-75'>
-                      Available: {ticket?.total_available}
+                      Available: {data?.ticket?.total_available}
                     </p>
                   </div>
                   <div className='text-right'>
                     <div className='font-mono text-xs mb-1'>
                       |||||||||||||||||||
                     </div>
-                    <p className='text-xs opacity-75'>#{ticket?.ticket_id}</p>
+                    <p className='text-xs opacity-75'>
+                      #{data?.ticket?.ticket_id}
+                    </p>
                   </div>
                 </div>
 
@@ -96,12 +97,6 @@ export default function FootballRewardSection() {
                 <div className='absolute left-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -ml-3' />
               </div>
             </Link>
-          ))}
-
-          {isLoading && (
-            <div className='text-center text-gray-400'>
-              <Loading />
-            </div>
           )}
         </div>
 

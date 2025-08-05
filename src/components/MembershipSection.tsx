@@ -7,108 +7,59 @@ import { Check, Crown, Star, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useRouter } from "next/navigation";
+import {
+  useCreateSubscriptionMutation,
+  useGetSubscriptionQuery,
+} from "@/redux/features/subscription/subscriptionAPI";
 
-interface PricingPlan {
-  id: string;
+interface MembershipPlan {
+  id: number;
   name: string;
-  href?: string;
-  icon: React.ReactNode;
-  monthlyPrice: number;
-  yearlyPrice: number;
-  description: string;
+  title: string;
+  monthly_price: string;
+  yearly_price: string;
+  yearly_discount_percent: string;
+  free_monthly_tickets: number;
+  ticket_discount_percent: string;
+  is_popular: boolean;
   features: string[];
-  isPopular: boolean;
-  buttonText: string;
-  buttonVariant: "default" | "secondary" | "outline";
 }
-
-const pricingPlans: PricingPlan[] = [
-  {
-    id: "entry",
-    name: "Entry Membership",
-    href: "/payment",
-    icon: <Star className='w-6 h-6' />,
-    monthlyPrice: 29.99,
-    yearlyPrice: 299.99,
-    description: "Perfect for getting started with football AI",
-    features: [
-      "Subscription Access to The Football AI",
-      "1 FREE monthly accumulating ticket into all Major Giveaways",
-    ],
-    isPopular: false,
-    buttonText: "Choose Plan",
-    buttonVariant: "secondary",
-  },
-  {
-    id: "premium",
-    name: "Premium Membership",
-    href: "/payment",
-    icon: <Zap className='w-6 h-6' />,
-    monthlyPrice: 39.99,
-    yearlyPrice: 399.99,
-    description: "Most popular choice for serious football enthusiasts",
-    features: [
-      "Subscription Access to The Football AI",
-      "4 FREE Monthly Accumulating Tickets For All Major Giveaways",
-      "2 Automatic Tickets for Minor Giveaways",
-      "15% off Major Giveaway tickets",
-    ],
-    isPopular: true,
-    buttonText: "Choose Plan",
-    buttonVariant: "default",
-  },
-  {
-    id: "vip",
-    name: "VIP Membership",
-    href: "/payment",
-    icon: <Crown className='w-6 h-6' />,
-    monthlyPrice: 89.99,
-    yearlyPrice: 899.99,
-    description: "Ultimate experience for football professionals",
-    features: [
-      "Subscription Access to The Football AI",
-      "10 FREE Monthly Accumulating Tickets For All Major Giveaways",
-      "3 Automatic Tickets for Minor Giveaways",
-      "40% off Major Giveaway tickets",
-    ],
-    isPopular: false,
-    buttonText: "Upgrade to Pro Plan",
-    buttonVariant: "default",
-  },
-];
 
 export default function MembershipSection() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">(
     "monthly"
   );
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const router = useRouter();
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 2,
-    }).format(price);
+  const [selectedPlan, setSelectedPlan] = useState<string | number | null>(
+    null
+  );
+  const [loadingPlanId, setLoadingPlanId] = useState<string | number | null>(
+    null
+  );
+  const { data } = useGetSubscriptionQuery({});
+  const [createSubscriptionMutation] = useCreateSubscriptionMutation();
+
+  const handlePlanSelection = async (planName: string | number) => {
+    setSelectedPlan(planName);
+    setLoadingPlanId(planName);
+    try {
+      const res = await createSubscriptionMutation({
+        name: planName,
+        billing_cycle: billingCycle,
+      });
+
+      console.log(res);
+
+      if (res?.data?.success) {
+        window.location.href = res?.data?.checkout_url;
+      }
+    } catch (error) {
+      console.error("Error creating subscription:", error);
+      alert("Failed to create subscription. Please try again.");
+    } finally {
+      setLoadingPlanId(null);
+    }
   };
 
-  const getPrice = (plan: PricingPlan) => {
-    return billingCycle === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;
-  };
-
-  const getSavings = (plan: PricingPlan) => {
-    const monthlyTotal = plan.monthlyPrice * 12;
-    const yearlySavings = monthlyTotal - plan.yearlyPrice;
-    return yearlySavings;
-  };
-
-  const handlePlanSelection = (planId: string) => {
-    setSelectedPlan(planId);
-    console.log(`Selected plan: ${planId} with ${billingCycle} billing`);
-    // Here you would typically redirect to checkout or open a payment modal
-    router.push(`/payment?plan=${planId}&cycle=${billingCycle}`);
-  };
- 
   return (
     <section id='membership' className='min-h-screen bg-[#000] py-16 lg:py-24'>
       <div className='container mx-auto px-4'>
@@ -153,11 +104,11 @@ export default function MembershipSection() {
 
         {/* Pricing Cards */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto'>
-          {pricingPlans.map((plan) => (
+          {data?.data?.map((plan: MembershipPlan) => (
             <Card
               key={plan.id}
               className={`relative bg-transparent border-2 transition-all duration-300 hover:scale-105 flex flex-col ${
-                plan.isPopular
+                plan.is_popular
                   ? "border-[#534590] shadow-2xl shadow-[#534590]/20"
                   : selectedPlan === plan.id
                   ? "border-purple-400"
@@ -165,7 +116,7 @@ export default function MembershipSection() {
               }`}
             >
               {/* Popular Badge */}
-              {plan.isPopular && (
+              {plan.is_popular && (
                 <div className='absolute -top-4 left-1/2 transform -translate-x-1/2'>
                   <Badge className='bg-[#534590] text-white px-4 py-1 text-sm font-semibold'>
                     Most Popular
@@ -177,18 +128,31 @@ export default function MembershipSection() {
                 <div className='flex justify-center mb-4'>
                   <div
                     className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                      plan.isPopular ? "bg-[#534590]" : "bg-gray-700"
+                      plan?.is_popular ? "bg-[#534590]" : "bg-gray-700"
                     }`}
                   >
-                    <div className='text-white'>{plan.icon}</div>
+                    <div className='text-white'>
+                      {plan?.name === "entry" ? (
+                        <Star className='w-6 h-6' />
+                      ) : null}
+                      {plan?.name === "premium" ? (
+                        <Zap className='w-6 h-6' />
+                      ) : null}
+                      {plan?.name === "vip" ? (
+                        <Crown className='w-6 h-6' />
+                      ) : null}
+                    </div>
                   </div>
                 </div>
                 <h3 className='text-xl font-bold text-white mb-2'>
-                  {plan.name}
+                  {plan?.title}
                 </h3>
                 <div className='mb-4'>
                   <span className='text-4xl font-bold text-white'>
-                    {formatPrice(getPrice(plan))}
+                    {/* {formatPrice(getPrice(plan?.monthly_price))} */}
+                    {billingCycle === "monthly"
+                      ? plan?.monthly_price
+                      : plan?.yearly_price}
                   </span>
                   <span className='text-gray-400 ml-2'>
                     per editor/{billingCycle === "monthly" ? "month" : "year"}
@@ -199,7 +163,7 @@ export default function MembershipSection() {
                 </div>
                 {billingCycle === "yearly" && (
                   <div className='text-green-400 text-sm font-medium'>
-                    Save {formatPrice(getSavings(plan))} per year
+                    {/* Save {formatPrice(getSavings(plan))} per year */}
                   </div>
                 )}
               </CardHeader>
@@ -229,21 +193,26 @@ export default function MembershipSection() {
                 </div>
 
                 <Button
-                  onClick={() => handlePlanSelection(plan.id)}
-                  variant={plan.buttonVariant}
+                  onClick={() => handlePlanSelection(plan?.name)}
+                  variant={plan?.is_popular === true ? "default" : "secondary"}
                   className={`w-full py-3 font-semibold transition-all duration-300 ${
-                    plan.isPopular
+                    plan?.is_popular
                       ? "bg-[#534590] hover:bg-purple-700 text-white"
-                      : plan.buttonVariant === "outline"
+                      : plan?.is_popular === true
                       ? "border-gray-600 text-white hover:bg-gray-800"
                       : "bg-gray-700 hover:bg-gray-600 text-white"
                   }`}
                 >
-                  {plan.buttonText}
+                  {loadingPlanId === plan?.name ? (
+                    <div className='flex items-center space-x-2'>
+                      <div className='w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin'></div>
+                      <span>Processing...</span>
+                    </div>
+                  ) : (
+                    "Select Plan"
+                  )}
                 </Button>
               </CardContent>
-
-              {/* <MembershipSection2 /> */}
             </Card>
           ))}
         </div>

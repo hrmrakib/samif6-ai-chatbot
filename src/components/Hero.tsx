@@ -2,7 +2,6 @@
 
 import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import NavbarTransparent from "./NavbarTransparent";
 import Link from "next/link";
 
 export default function HeroSection() {
@@ -11,12 +10,12 @@ export default function HeroSection() {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.play();
-    }
+    } 
   }, []);
 
   return (
     <section className='relative h-[600px] md:min-h-screen flex items-center justify-center overflow-hidden'>
-      <NavbarTransparent />
+      {/* <NavbarTransparent /> */}
       {/* Video Background */}
       <div className='absolute inset-0 w-full h-full'>
         <video

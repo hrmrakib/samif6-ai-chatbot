@@ -1,3 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+"use client";
+
 import ChatbotSection from "@/components/ChatbotSection";
 import ContactSection from "@/components/ContactSection";
 import FootballAiCoach from "@/components/FootballAiCoach";
@@ -5,10 +8,27 @@ import FootballRewardSection from "@/components/FootballRewardSection";
 import HeroSection from "@/components/Hero";
 import HowItWorksSection from "@/components/HowItsWork";
 import MembershipSection from "@/components/MembershipSection";
+import { setCurrentUser } from "@/redux/features/auth/userSlice";
+import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
+import { RootState } from "@/redux/store/store";
 // import ProductsSection from "@/components/ProductSection";
-import React from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 const HomePage = () => {
+  const currentUser = useSelector((state: RootState) => state.user.user);
+  console.log({ currentUser });
+  const dispatch = useDispatch();
+  const { data } = useGetProfileQuery({});
+  console.log("user data", data?.data);
+
+  useEffect(() => {
+    const user = localStorage.getItem("samif6_user");
+    if (user) {
+      dispatch(setCurrentUser(JSON.parse(user)));
+    }
+  }, []);
+
   return (
     <div>
       <HeroSection />
@@ -20,9 +40,8 @@ const HomePage = () => {
 
       <FootballRewardSection />
       <HowItWorksSection />
-      {/* <ProductsSection /> */}
       <MembershipSection />
-      <ContactSection  />
+      <ContactSection />
     </div>
   );
 };

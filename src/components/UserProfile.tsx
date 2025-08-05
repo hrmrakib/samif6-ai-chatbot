@@ -18,6 +18,8 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
+import { handleLogout } from "@/redux/features/auth/userSlice";
+import { useDispatch } from "react-redux";
 
 interface UserData {
   name: string;
@@ -39,13 +41,8 @@ export default function UserProfileDropdown() {
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
   const [activeSection, setActiveSection] = useState("profile");
   const router = useRouter();
-
   const { data: user } = useGetProfileQuery({});
-
-  // const handleProfileClick = () => {
-  //   setActiveSection("profile");
-  //   console.log("Navigate to profile page");
-  // };
+  const dispatch = useDispatch();
 
   const handleTicketsClick = () => {
     setActiveSection("tickets");
@@ -61,16 +58,14 @@ export default function UserProfileDropdown() {
     setIsSettingsExpanded(false);
   };
 
-  const handleLogout = () => {
-    console.log("User logging out");
-    // Add logout logic here
-    // Clear user session, redirect to login, etc.
-    router.push("/login");
-  };
-
   const handleEditProfile = () => {
     console.log("Edit profile clicked");
     // Add edit profile logic here
+  };
+
+  const handleLogoutMe = () => {
+    dispatch(handleLogout());
+    router.push("/");
   };
 
   return (
@@ -107,8 +102,8 @@ export default function UserProfileDropdown() {
                 </h3>
                 <p className='text-gray-600 text-sm truncate'>{user?.email}</p>
                 <div className='flex items-center gap-2 mt-1'>
-                  <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800'>
-                    {userData.membershipTier}
+                  <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize bg-purple-100 text-purple-800'>
+                    {user?.subscribed_plan_status?.plan__name}
                   </span>
                 </div>
               </div>
@@ -202,7 +197,7 @@ export default function UserProfileDropdown() {
           {/* Logout */}
           <div className='p-2'>
             <button
-              onClick={handleLogout}
+              onClick={() => handleLogoutMe()}
               className='w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left text-red-600 hover:bg-red-50 transition-colors duration-200'
             >
               <LogOut className='w-5 h-5' />

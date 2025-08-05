@@ -80,9 +80,10 @@ export default function LoginPage() {
         toast.success(res?.message);
         localStorage.setItem("access_token", res?.access_token);
         localStorage.setItem("refresh_token", res?.refresh_token);
-        localStorage.setItem("samif6_user", res?.user);
-        await saveToken(res?.access_token);
+        localStorage.setItem("samif6_user", JSON.stringify(res?.user));
         dispatch(setCurrentUser(res?.user));
+
+        await saveToken(res?.access_token);
         router.push("/");
       }
     } catch (error) {

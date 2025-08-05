@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 const FootballAiCoach = () => {
@@ -13,9 +14,11 @@ const FootballAiCoach = () => {
         players the support of a Coach, Physio and Mentor anytime they need it.
       </p>
 
-      <button className='bg-[#534590] hover:bg-[#5840c5] text-white shadow-xl rounded-full py-2.5 px-6'>
-        Unlock The Vault
-      </button>
+      <Link href='#membership' className='w-full flex justify-center'>
+        <button className='bg-[#534590] hover:bg-[#5840c5] text-white shadow-xl rounded-full py-2.5 px-6'>
+          Unlock The Vault
+        </button>
+      </Link>
     </div>
   );
 };
