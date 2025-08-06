@@ -5,9 +5,9 @@ import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Search, Menu, X, ArrowRight, SquarePen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import ReactMarkdown from "react-markdown";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -118,12 +118,19 @@ export default function ChatbotSection() {
 
   const handleSendMessage = async () => {
     if (!sessionId) {
-      makeSession();
+      await makeSession(); // Wait to ensure session is created before proceeding
     }
 
     if (!inputValue.trim() || isLoading) return;
 
-    setMessages((prev) => [...prev, userMessage]);
+    const userMsg: Message = {
+      id: Date.now().toString(),
+      content: inputValue,
+      isUser: true,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
     setInputValue("");
     setIsLoading(true);
 
@@ -136,19 +143,21 @@ export default function ChatbotSection() {
     try {
       const aiResponse = await createChatMutation(msg).unwrap();
 
-      console.log("aiResponse", aiResponse);
+      // Assuming aiResponse structure is like:
+      // { session_id: "id", data: [{ response_text: "AI's response..." }] }
 
-      // const aiMessage: Message = {
-      //   id: (Date.now() + 1).toString(),
-      //   content: aiResponse,
-      //   isUser: false,
-      //   timestamp: new Date(),
-      // };
-      // setMessages((prev) => [...prev, aiMessage]);
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: aiResponse?.data?.[0]?.response_text ?? "No response found.",
+        isUser: false,
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
       console.error("Error getting AI response:", error);
       const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: (Date.now() + 2).toString(),
         content:
           "Sorry, I'm having trouble responding right now. Please try again.",
         isUser: false,
@@ -160,6 +169,43 @@ export default function ChatbotSection() {
       scrollToBottom();
     }
   };
+
+  // const handleSendMessage = async () => {
+  //   if (!sessionId) {
+  //     makeSession();
+  //   }
+
+  //   if (!inputValue.trim() || isLoading) return;
+
+  //   setMessages((prev) => [...prev, userMessage]);
+  //   setInputValue("");
+  //   setIsLoading(true);
+
+  //   const msg = {
+  //     session_id: sessionId,
+  //     email: email,
+  //     query_text: inputValue,
+  //   };
+
+  //   try {
+  //     const aiResponse = await createChatMutation(msg).unwrap();
+
+  //     console.log("aiResponse", aiResponse);
+  //   } catch (error) {
+  //     console.error("Error getting AI response:", error);
+  //     const errorMessage: Message = {
+  //       id: (Date.now() + 1).toString(),
+  //       content:
+  //         "Sorry, I'm having trouble responding right now. Please try again.",
+  //       isUser: false,
+  //       timestamp: new Date(),
+  //     };
+  //     setMessages((prev) => [...prev, errorMessage]);
+  //   } finally {
+  //     setIsLoading(false);
+  //     scrollToBottom();
+  //   }
+  // };
 
   const handleCategoryClick = (category: (typeof aiCategories)[0]) => {
     const categoryMessage = `Tell me about ${category.label.toLowerCase()}`;
@@ -339,7 +385,7 @@ export default function ChatbotSection() {
         </Sheet>
 
         {/* Main Chat Area */}
-        <div className='flex-1 flex flex-col bg-[#1a1a1a] border-8'>
+        <div className='flex-1 flex flex-col bg-[#1a1a1a]'>
           {/* middle loading screen over the chat area */}
           {/* {isLoading && (
             <div className='absolute inset-0 flex items-center justify-center bg-black/50 z-10'>
@@ -363,34 +409,11 @@ export default function ChatbotSection() {
           </div>
 
           {/* Messages Area */}
-          <ScrollArea className='flex-1 p-4 md:p-8 border-4 border-yellow-400 m-2'>
-            <div className='flex items-center justify-center min-h-[90vh] w-full border-2 border-blue-800'>
-              <div className='w-full max-w-4xl mx-auto space-y-6 border-2 border-green-600'>
+          <ScrollArea className='flex-1 p-4 md:p-8'>
+            <div className='flex items-center justify-center min-h-[90vh] w-full'>
+              <div className='w-full max-w-4xl mx-auto space-y-6'>
                 {/* Welcome Message and Categories */}
-                {messages.length === 1 && (
-                  <div className='text-center space-y-8'>
-                    <h1 className='text-2xl md:text-4xl font-bold text-white mb-8'>
-                      Hello! Ask Me About Global Football Vault.
-                    </h1>
-
-                    <div className='flex flex-wrap justify-center gap-3 md:gap-4'>
-                      {aiCategories.map((category) => (
-                        <Button
-                          key={category.id}
-                          onClick={() => handleCategoryClick(category)}
-                          variant='outline'
-                          className='bg-gray-800/50 border-gray-600 text-white hover:bg-gray-700 hover:text-white text-sm md:text-base px-4 py-2'
-                        >
-                          <span className='mr-2'>{category.icon}</span>
-                          {category.label}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Chat Messages */}
-                {/* {messages.map((message) => (
+                {messages.map((message) => (
                   <div
                     key={message.id}
                     className={`flex ${
@@ -404,16 +427,22 @@ export default function ChatbotSection() {
                           : "bg-gray-800 text-white"
                       }`}
                     >
-                      <p className='text-sm md:text-base'>{message.content}</p>
+                      {/* <p className='text-sm md:text-base whitespace-pre-line'>
+                        {message.content}
+                      </p> */}
+                      {/* <ReactMarkdown className='prose prose-invert max-w-none'> */}
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
                       <p className='text-xs opacity-70 mt-1'>
-                        {formatTime(message.timestamp)}
+                        {message.timestamp.toLocaleTimeString()}
                       </p>
                     </div>
                   </div>
-                ))} */}
+                ))}
+
+                {/* Chat Messages */}
 
                 {/* Loading Indicator */}
-                {/* {isLoading && (
+                {isLoading && (
                   <div className='flex justify-start'>
                     <div className='bg-gray- text-white px-4 py-3 rounded-2xl'>
                       <div className='flex space-x-1'>
@@ -429,7 +458,7 @@ export default function ChatbotSection() {
                       </div>
                     </div>
                   </div>
-                )} */}
+                )}
 
                 <div ref={messagesEndRef} />
 
