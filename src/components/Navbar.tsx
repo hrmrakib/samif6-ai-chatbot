@@ -48,6 +48,7 @@ export default function Navbar() {
     pathname === "/forget-password" ||
     pathname === "/password-reset-success" ||
     pathname === "/football-ai" ||
+    pathname === "/football-ai/?model=auto" ||
     pathname === "/football-ai/ai-coach"
   ) {
     return null;

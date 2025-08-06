@@ -10,6 +10,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  useCreateChatMutation,
+  useCreateSessionMutation,
+} from "@/redux/features/ai/aiChatAPI";
+import { useSearchParams } from "next/navigation";
 
 interface Message {
   id: string;
@@ -34,6 +39,9 @@ const aiCategories = [
 ];
 
 export default function ChatbotSection() {
+  const [email, setEmail] = useState("");
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("session_id");
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -43,7 +51,6 @@ export default function ChatbotSection() {
     },
   ]);
   const [inputValue, setInputValue] = useState("");
-  const [isLoading] = useState(false);
   const [chatSessions] = useState<ChatSession[]>([
     { id: "1", name: "Chat Name", messages: [], lastMessage: new Date() },
     { id: "2", name: "Chat Name", messages: [], lastMessage: new Date() },
@@ -58,7 +65,31 @@ export default function ChatbotSection() {
   ]);
   const [, setCurrentChatId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [userMessage] = useState<Message>({
+    id: Date.now().toString(),
+    content: inputValue,
+    isUser: true,
+    timestamp: new Date(),
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [createSessionMutation] = useCreateSessionMutation();
+  const [createChatMutation] = useCreateChatMutation();
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.style.height = "auto";
+      textAreaRef.current.style.height = `${textAreaRef.current.scrollHeight}px`;
+    }
+  }, [inputValue]);
+
+  useEffect(() => {
+    const mail = localStorage.getItem("samif6_user_email");
+    if (mail) {
+      setEmail(mail);
+    }
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -68,80 +99,66 @@ export default function ChatbotSection() {
     scrollToBottom();
   }, [messages]);
 
-  // const simulateAIResponse = async (userMessage: string): Promise<string> => {
-  //   // Simulate API delay
-  //   await new Promise((resolve) =>
-  //     setTimeout(resolve, 1000 + Math.random() * 2000)
-  //   );
-
-  //   // Simple AI response simulation based on keywords
-  //   const lowerMessage = userMessage.toLowerCase();
-
-  //   if (lowerMessage.includes("nutrition") || lowerMessage.includes("diet")) {
-  //     return "Great question about nutrition! As your AI Football Coach, I recommend focusing on a balanced diet with adequate protein (1.6-2.2g per kg body weight), complex carbohydrates for energy, and proper hydration. Would you like specific meal plans for training days?";
-  //   }
-
-  //   if (lowerMessage.includes("training") || lowerMessage.includes("workout")) {
-  //     return "For optimal football training, I suggest a periodized approach combining technical skills, tactical awareness, physical conditioning, and mental preparation. What specific aspect of training would you like to focus on - speed, agility, strength, or endurance?";
-  //   }
-
-  //   if (
-  //     lowerMessage.includes("injury") ||
-  //     lowerMessage.includes("prevention")
-  //   ) {
-  //     return "Injury prevention is crucial for football players. Key strategies include proper warm-up routines, strength training for muscle imbalances, flexibility work, adequate recovery, and listening to your body. Are you experiencing any specific concerns or areas of discomfort?";
-  //   }
-
-  //   if (
-  //     lowerMessage.includes("analytics") ||
-  //     lowerMessage.includes("performance")
-  //   ) {
-  //     return "Performance analytics can significantly improve your game! I can help you track metrics like sprint speed, passing accuracy, distance covered, heart rate zones, and recovery patterns. What specific performance areas would you like to analyze?";
-  //   }
-
-  //   if (lowerMessage.includes("strength") || lowerMessage.includes("gym")) {
-  //     return "Strength training for football should focus on functional movements, explosive power, and sport-specific patterns. I recommend compound exercises like squats, deadlifts, and plyometrics. What's your current training experience level?";
-  //   }
-
-  //   return "That's an interesting question about football! As your AI coach, I'm here to help with training, nutrition, injury prevention, performance analytics, and strength development. Could you be more specific about what aspect you'd like to explore?";
-  // };
+  const makeSession = async () => {
+    try {
+      const res = await createSessionMutation({ email }).unwrap();
+      if (res?.session_id) {
+        // set on urlbar using nextjs
+        const url = new URL(window.location.href);
+        url.searchParams.set("session_id", res.session_id);
+        window.history.replaceState(null, "", url.toString());
+      }
+      console.log(res);
+    } catch (error) {
+      console.error("Error creating session:", error);
+    } finally {
+      setIsSidebarOpen(false);
+    }
+  };
 
   const handleSendMessage = async () => {
+    if (!sessionId) {
+      makeSession();
+    }
+
     if (!inputValue.trim() || isLoading) return;
 
-    // const userMessage: Message = {
-    //   id: Date.now().toString(),
-    //   content: inputValue,
-    //   isUser: true,
-    //   timestamp: new Date(),
-    // };
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue("");
+    setIsLoading(true);
 
-    // setMessages((prev) => [...prev, userMessage]);
-    // setInputValue("");
-    // setIsLoading(true);
+    const msg = {
+      session_id: sessionId,
+      email: email,
+      query_text: inputValue,
+    };
 
-    // try {
-    //   const aiResponse = await simulateAIResponse(inputValue);
-    //   const aiMessage: Message = {
-    //     id: (Date.now() + 1).toString(),
-    //     content: aiResponse,
-    //     isUser: false,
-    //     timestamp: new Date(),
-    //   };
-    //   setMessages((prev) => [...prev, aiMessage]);
-    // } catch (error) {
-    //   console.error("Error getting AI response:", error);
-    //   const errorMessage: Message = {
-    //     id: (Date.now() + 1).toString(),
-    //     content:
-    //       "Sorry, I'm having trouble responding right now. Please try again.",
-    //     isUser: false,
-    //     timestamp: new Date(),
-    //   };
-    //   setMessages((prev) => [...prev, errorMessage]);
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    try {
+      const aiResponse = await createChatMutation(msg).unwrap();
+
+      console.log("aiResponse", aiResponse);
+
+      // const aiMessage: Message = {
+      //   id: (Date.now() + 1).toString(),
+      //   content: aiResponse,
+      //   isUser: false,
+      //   timestamp: new Date(),
+      // };
+      // setMessages((prev) => [...prev, aiMessage]);
+    } catch (error) {
+      console.error("Error getting AI response:", error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content:
+          "Sorry, I'm having trouble responding right now. Please try again.",
+        isUser: false,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+      scrollToBottom();
+    }
   };
 
   const handleCategoryClick = (category: (typeof aiCategories)[0]) => {
@@ -322,7 +339,16 @@ export default function ChatbotSection() {
         </Sheet>
 
         {/* Main Chat Area */}
-        <div className='flex-1 flex flex-col bg-[#1a1a1a]'>
+        <div className='flex-1 flex flex-col bg-[#1a1a1a] border-8'>
+          {/* middle loading screen over the chat area */}
+          {/* {isLoading && (
+            <div className='absolute inset-0 flex items-center justify-center bg-black/50 z-10'>
+              <div className='text-white text-lg'>Processing...</div>
+            </div>
+          )} */}
+
+          {/* Header */}
+
           {/* Mobile Header */}
           <div className='md:hidden flex items-center justify-between p-4 bg-black/50 border-b border-gray-800'>
             <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
@@ -337,9 +363,9 @@ export default function ChatbotSection() {
           </div>
 
           {/* Messages Area */}
-          <ScrollArea className='flex-1 p-4 md:p-8'>
-            <div className='flex items-center justify-center min-h-[90vh] w-full'>
-              <div className='max-w-4xl mx-auto space-y-6'>
+          <ScrollArea className='flex-1 p-4 md:p-8 border-4 border-yellow-400 m-2'>
+            <div className='flex items-center justify-center min-h-[90vh] w-full border-2 border-blue-800'>
+              <div className='w-full max-w-4xl mx-auto space-y-6 border-2 border-green-600'>
                 {/* Welcome Message and Categories */}
                 {messages.length === 1 && (
                   <div className='text-center space-y-8'>
@@ -347,7 +373,6 @@ export default function ChatbotSection() {
                       Hello! Ask Me About Global Football Vault.
                     </h1>
 
-                    {/* Category Buttons */}
                     <div className='flex flex-wrap justify-center gap-3 md:gap-4'>
                       {aiCategories.map((category) => (
                         <Button
@@ -388,9 +413,9 @@ export default function ChatbotSection() {
                 ))} */}
 
                 {/* Loading Indicator */}
-                {isLoading && (
+                {/* {isLoading && (
                   <div className='flex justify-start'>
-                    <div className='bg-gray-800 text-white px-4 py-3 rounded-2xl'>
+                    <div className='bg-gray- text-white px-4 py-3 rounded-2xl'>
                       <div className='flex space-x-1'>
                         <div className='w-2 h-2 bg-gray-400 rounded-full animate-bounce' />
                         <div
@@ -404,19 +429,42 @@ export default function ChatbotSection() {
                       </div>
                     </div>
                   </div>
-                )}
+                )} */}
 
                 <div ref={messagesEndRef} />
 
-                <div className=''>
-                  <div className='max-w-4xl mx-auto'>
-                    <div className='relative h-32 flex gap-2 md:gap-4 bg-[#2d2d2d] rounded-2xl p-2'>
-                      <Input
+                <div className='w-full'>
+                  <div className='w-full max-w-4xl mx-auto'>
+                    <div className='w-full relative max-h-80 flex gap-2 md:gap-4 bg-[#2d2d2d] rounded-2xl p-2'>
+                      {/* <Input
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyPress={handleKeyPress}
                         placeholder='Ask Me About Anything Football...'
                         className='flex-1 bg-transparent border-none text-white placeholder-gray-400 outline-none focus:ring-none text-sm md:text-base'
+                        disabled={isLoading}
+                      /> */}
+                      <textarea
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyPress={handleKeyPress}
+                        placeholder='Ask Me About Anything Football...'
+                        className='w-full p-2.5 flex-1 bg-transparent border-none text-white placeholder-gray-400 outline-none focus:ring-0 text-sm md:text-base resize-none max-h-[250px] overflow-y-auto'
+                        rows={1}
+                        style={{
+                          height: "auto",
+                          minHeight: "6rem",
+                          width: "100%",
+                        }}
+                        ref={(el) => {
+                          if (el) {
+                            el.style.height = "auto";
+                            el.style.height = `${Math.min(
+                              el.scrollHeight,
+                              250
+                            )}px`;
+                          }
+                        }}
                         disabled={isLoading}
                       />
                       <Button
