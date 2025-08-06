@@ -40,12 +40,12 @@ export default function FootballRewardSection() {
         </div>
 
         {/* Tickets Display */}
-        <div className='flex flex-col items-center gap-8 mb-16'>
-          {isLoading ? (
-            <div className='text-center text-gray-400'>
-              <Loading />
-            </div>
-          ) : (
+        {isLoading ? (
+          <div className='text-center text-gray-400'>
+            <Loading />
+          </div>
+        ) : (
+          <div className='flex flex-col items-center gap-8 mb-16'>
             <Link
               key={data?.ticket?.id}
               href='/ticket'
@@ -97,8 +97,8 @@ export default function FootballRewardSection() {
                 <div className='absolute left-0 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-gray-900 rounded-full -ml-3' />
               </div>
             </Link>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Bottom Section */}
         <div className='text-center'>

@@ -33,8 +33,23 @@ const ticketAPI = baseAPI.injectEndpoints({
         },
       }),
     }),
+
+    userPurchasedTickets: builder.query({
+      query: () => ({
+        url: "api/ticket/my-purchase/",
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      }),
+    }),
   }),
 });
 
-export const { useCreateTicketMutation, useTicketCheckoutMutation, useGetTicketsQuery } = ticketAPI;
+export const {
+  useCreateTicketMutation,
+  useTicketCheckoutMutation,
+  useGetTicketsQuery,
+  useUserPurchasedTicketsQuery,
+} = ticketAPI;
 export default ticketAPI;
