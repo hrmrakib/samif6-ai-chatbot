@@ -12,6 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { RootState } from "@/redux/store/store";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentUser } from "@/redux/features/auth/userSlice";
+import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
 
 const navigationLinks = [
   { name: "Home", href: "/" },
@@ -28,6 +29,9 @@ export default function Navbar() {
   const router = useRouter();
   const currentUser = useSelector((state: RootState) => state.user.user);
   const dispatch = useDispatch();
+  const { data: user } = useGetProfileQuery({});
+
+  console.log(currentUser);
 
   useEffect(() => {
     const user = localStorage.getItem("samif6_user");
@@ -86,17 +90,17 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Action Buttons */}
-          {currentUser ? (
+          {currentUser && user ? (
             <div>
               <Image
                 src={
-                  `${process.env.NEXT_PUBLIC_IMAGE_URL}${currentUser?.profile_pic}` ||
+                  `${process.env.NEXT_PUBLIC_IMAGE_URL}${user?.profile_pic}` ||
                   "/first.png"
                 }
                 alt='User Avatar'
                 width={40}
                 height={40}
-                className='w-10 h-10 rounded-full cursor-pointer border-2 border-gray-100'
+                className='w-10 h-10  rounded-full cursor-pointer border-2 border-gray-100'
                 onClick={() => router.push("/profile")}
               />
             </div>

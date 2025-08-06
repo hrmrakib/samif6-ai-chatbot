@@ -11,8 +11,19 @@ const profileAPI = baseAPI.injectEndpoints({
         },
       }),
     }),
+
+    updateProfile: builder.mutation({
+      query: (data) => ({
+        url: "api/auth/update-profile/",
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+        body: data,
+      }),
+    }),
   }),
 });
 
-export const { useGetProfileQuery } = profileAPI;
+export const { useGetProfileQuery, useUpdateProfileMutation } = profileAPI;
 export default profileAPI;

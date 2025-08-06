@@ -1,20 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Edit, Camera, Mail, User, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
-import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
+import {
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+} from "@/redux/features/profile/profileAPI";
 
 interface UserProfile {
   full_name: string;
   email: string;
   profile_pic?: string;
-  bio?: string;
-  phone?: string;
+  mobile_no?: string;
   location?: string;
 }
 
@@ -24,13 +26,16 @@ export default function ProfileCard() {
     full_name: "",
     email: "",
     profile_pic: "/profile.jpg",
-    bio: "",
-    phone: "",
+    mobile_no: "",
     location: "",
   });
   const [editedProfile, setEditedProfile] = useState<UserProfile>(profile);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { data: user } = useGetProfileQuery({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [updateProfileMutation] = useUpdateProfileMutation();
 
   useEffect(() => {
     if (user) {
@@ -52,8 +57,17 @@ export default function ProfileCard() {
   const handleSaveProfile = async () => {
     setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const formData = new FormData();
+      formData.append("full_name", editedProfile.full_name);
+      formData.append("email", editedProfile.email);
+      if (selectedFile) {
+        formData.append("profile_pic", selectedFile);
+      }
+      formData.append("mobile_no", editedProfile.mobile_no || "");
+      formData.append("location", editedProfile.location || "");
+
+      const res = await updateProfileMutation(formData).unwrap();
+      console.log(res);
 
       setProfile(editedProfile);
       setIsEditing(false);
@@ -69,9 +83,24 @@ export default function ProfileCard() {
     setEditedProfile((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleAvatarChange = () => {
-    console.log("Avatar change clicked");
-    // Implement file upload logic here
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setImagePreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditedProfile((prev) => ({
+          ...prev,
+          profile_pic: reader.result as string,
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -86,6 +115,7 @@ export default function ProfileCard() {
                   <div className='w-full h-full rounded-xl overflow-hidden'>
                     <Image
                       src={
+                        imagePreview ||
                         `${process.env.NEXT_PUBLIC_IMAGE_URL}${profile?.profile_pic}` ||
                         "/placeholder.svg"
                       }
@@ -98,10 +128,18 @@ export default function ProfileCard() {
                 </div>
                 {isEditing && (
                   <button
-                    onClick={handleAvatarChange}
+                    onClick={triggerFileInput}
                     className='absolute bottom-2 right-2 bg-purple-600 hover:bg-purple-700 text-white rounded-full p-3 transition-colors duration-200 shadow-lg'
                     aria-label='Change profile picture'
                   >
+                    <input
+                      ref={fileInputRef}
+                      type='file'
+                      accept='image/*'
+                      onChange={handleAvatarChange}
+                      className='hidden'
+                      aria-label='Upload profile picture'
+                    />
                     <Camera className='w-5 h-5' />
                   </button>
                 )}
@@ -144,21 +182,12 @@ export default function ProfileCard() {
                     </div>
                   </div>
 
-                  {profile.bio && (
-                    <div>
-                      <Label className='text-gray-600 text-sm font-medium'>
-                        Bio:
-                      </Label>
-                      <p className='text-gray-700 mt-1'>{profile?.bio}</p>
-                    </div>
-                  )}
-
-                  {profile.phone && (
+                  {profile.mobile_no && (
                     <div>
                       <Label className='text-gray-600 text-sm font-medium'>
                         Phone:
                       </Label>
-                      <p className='text-gray-700 mt-1'>{profile?.phone}</p>
+                      <p className='text-gray-700 mt-1'>{profile?.mobile_no}</p>
                     </div>
                   )}
 
@@ -221,22 +250,6 @@ export default function ProfileCard() {
 
                   <div>
                     <Label
-                      htmlFor='bio'
-                      className='text-gray-600 text-sm font-medium'
-                    >
-                      Bio:
-                    </Label>
-                    <Input
-                      id='bio'
-                      value={editedProfile.bio || ""}
-                      onChange={(e) => handleInputChange("bio", e.target.value)}
-                      className='mt-1'
-                      placeholder='Tell us about yourself'
-                    />
-                  </div>
-
-                  <div>
-                    <Label
                       htmlFor='phone'
                       className='text-gray-600 text-sm font-medium'
                     >
@@ -244,9 +257,9 @@ export default function ProfileCard() {
                     </Label>
                     <Input
                       id='phone'
-                      value={editedProfile.phone || ""}
+                      value={editedProfile.mobile_no || ""}
                       onChange={(e) =>
-                        handleInputChange("phone", e.target.value)
+                        handleInputChange("mobile_no", e.target.value)
                       }
                       className='mt-1'
                       placeholder='Enter your phone number'
