@@ -12,17 +12,17 @@ export default function PaymentCancel() {
   };
 
   return (
-    <div className='min-h-screen bg-[#E9E9E9]  flex items-center justify-center px-4'>
+    <div className='min-h-screen bg-[#000000]  flex items-center justify-center px-4'>
       {/* Main Content */}
       <main className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12'>
         <div className='text-center mb-8'>
           <div className='flex justify-center mb-6'>
             <XCircle className='w-20 h-20 text-red-500' />
           </div>
-          <h1 className='text-3xl md:text-4xl font-bold text-gray-900 mb-4'>
+          <h1 className='text-3xl md:text-4xl font-bold text-gray-50 mb-4'>
             Payment Cancelled
           </h1>
-          <p className='text-lg text-gray-600 max-w-2xl mx-auto'>
+          <p className='text-lg text-gray-400 max-w-2xl mx-auto'>
             Your payment was cancelled and no charges were made to your account.
             You can try again or contact our support team if you need
             assistance.

@@ -12,6 +12,7 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
+import chatApi from "../features/ai/aiChatAPI";
 
 const persistedUserReducer = persistReducer(
   {
@@ -32,6 +33,7 @@ const persistedAuthReducer = persistReducer(
 export const store = configureStore({
   reducer: {
     [baseAPI.reducerPath]: baseAPI.reducer,
+    [chatApi.reducerPath]: chatApi.reducer,
 
     user: persistedUserReducer,
     auth: persistedAuthReducer,
@@ -41,7 +43,9 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(baseAPI.middleware),
+    })
+      .concat(baseAPI.middleware)
+      .concat(chatApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -96,24 +96,37 @@ export default function TicketDetailsPage() {
         quantity: ticketQuantity,
       });
 
-      if (res?.error?.status) {
-        toast("✖️ User does not have an active subscription.");
-      }
+      console.log(res);
+
+      // if (res?.) {
+      //   toast("✖️ User does not have an active subscription.");
+      // }
 
       if (res?.data?.success) {
         window.location.href = res?.data?.session_id;
+      } else if (res?.error) {
+        if ("data" in res.error) {
+          const errorData = res.error.data as {
+            success: boolean;
+            message: string;
+          };
+
+          if (errorData.success === false) {
+            toast.error(errorData.message);
+          } else {
+            toast.error("An error occurred, but no message was provided.");
+          }
+        } else {
+          toast.error("An unknown error occurred.");
+        }
       }
 
       setTicketData((prev) => ({
         ...prev,
         availableTickets: prev.total_available - 1,
       }));
-
-      // Redirect to payment page
-      // router.push("/payment");
     } catch (error) {
       console.error("Purchase error:", error);
-      alert("Failed to purchase ticket. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -256,6 +269,7 @@ export default function TicketDetailsPage() {
                   max={ticketData?.total_available}
                   placeholder='Enter quantity'
                   required
+                  disabled={isLoading}
                   onChange={(e) => setTicketQuantity(Number(e.target.value))}
                   className='w-40 px-2 py-1.5 border border-gray-400 rounded-full outline-none focus:ring-2 focus:ring-purple-500'
                 />
@@ -266,10 +280,11 @@ export default function TicketDetailsPage() {
                 disabled={
                   isLoading ||
                   ticketData?.total_available <= 0 ||
-                  ticketQuantity <= 0
+                  ticketQuantity <= 0 ||
+                  ticketQuantity >= ticketData?.total_available
                 }
                 className={`px-8 py-4 rounded-full font-semibold text-white transition-all disabled:cursor-not-allowed duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 ${
-                  ticketData?.total_available <= 0
+                  ticketData?.total_available < ticketQuantity
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
                 }`}

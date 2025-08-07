@@ -1,3 +1,5 @@
+/* eslint-disable react/no-children-prop */
+
 "use client";
 
 import type React from "react";
@@ -13,8 +15,12 @@ import Link from "next/link";
 import {
   useCreateChatMutation,
   useCreateSessionMutation,
+  useGetAiChatBySessionQuery,
+  useGetAiChatSessionQuery,
 } from "@/redux/features/ai/aiChatAPI";
 import { useSearchParams } from "next/navigation";
+import remarkGfm from "remark-gfm";
+import { FadeLoader } from "react-spinners";
 
 interface Message {
   id: string;
@@ -23,11 +29,9 @@ interface Message {
   timestamp: Date;
 }
 
-interface ChatSession {
-  id: string;
-  name: string;
-  messages: Message[];
-  lastMessage: Date;
+interface Session {
+  title: string;
+  session_id: string;
 }
 
 const aiCategories = [
@@ -45,37 +49,36 @@ export default function ChatbotSection() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      content: "Hello! Ask Me About Global Football Vault.",
+      content: "",
       isUser: false,
       timestamp: new Date(),
     },
   ]);
   const [inputValue, setInputValue] = useState("");
-  const [chatSessions] = useState<ChatSession[]>([
-    { id: "1", name: "Chat Name", messages: [], lastMessage: new Date() },
-    { id: "2", name: "Chat Name", messages: [], lastMessage: new Date() },
-    { id: "3", name: "Chat Name", messages: [], lastMessage: new Date() },
-    { id: "4", name: "Chat Name", messages: [], lastMessage: new Date() },
-    { id: "5", name: "Chat Name", messages: [], lastMessage: new Date() },
-    { id: "6", name: "Chat Name", messages: [], lastMessage: new Date() },
-    { id: "7", name: "Chat Name", messages: [], lastMessage: new Date() },
-    { id: "8", name: "Chat Name", messages: [], lastMessage: new Date() },
-    { id: "9", name: "Chat Name", messages: [], lastMessage: new Date() },
-    { id: "10", name: "Chat Name", messages: [], lastMessage: new Date() },
-  ]);
-  const [, setCurrentChatId] = useState<string | null>(null);
+
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [userMessage] = useState<Message>({
-    id: Date.now().toString(),
-    content: inputValue,
-    isUser: true,
-    timestamp: new Date(),
-  });
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [createSessionMutation] = useCreateSessionMutation();
   const [createChatMutation] = useCreateChatMutation();
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const {
+    data: allChats,
+    refetch,
+    isLoading: chatLoading,
+  } = useGetAiChatBySessionQuery(sessionId, {
+    skip: !sessionId,
+  });
+  const {
+    data: allSessions,
+    isLoading: sessionLoading,
+    refetch: sessionRefetch,
+  } = useGetAiChatSessionQuery("alphabytes.gpt@gmail.com", {
+    skip: !email,
+  });
+
+  console.log({ allChats });
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -117,11 +120,15 @@ export default function ChatbotSection() {
   };
 
   const handleSendMessage = async () => {
-    if (!sessionId) {
-      await makeSession(); // Wait to ensure session is created before proceeding
-    }
-
     if (!inputValue.trim() || isLoading) return;
+
+    setIsLoading(true);
+
+    let currentSessionId: string | null | void = sessionId;
+
+    if (!currentSessionId) {
+      currentSessionId = await makeSession();
+    }
 
     const userMsg: Message = {
       id: Date.now().toString(),
@@ -132,10 +139,9 @@ export default function ChatbotSection() {
 
     setMessages((prev) => [...prev, userMsg]);
     setInputValue("");
-    setIsLoading(true);
 
     const msg = {
-      session_id: sessionId,
+      session_id: currentChatId || currentSessionId,
       email: email,
       query_text: inputValue,
     };
@@ -143,17 +149,20 @@ export default function ChatbotSection() {
     try {
       const aiResponse = await createChatMutation(msg).unwrap();
 
-      // Assuming aiResponse structure is like:
-      // { session_id: "id", data: [{ response_text: "AI's response..." }] }
+      console.log({ aiResponse });
 
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        content: aiResponse?.data?.[0]?.response_text ?? "No response found.",
-        isUser: false,
-        timestamp: new Date(),
-      };
+      if (aiResponse?.session_id) {
+        refetch();
+        sessionRefetch();
+        const aiMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: aiResponse?.data?.[0]?.response_text ?? "No response found.",
+          isUser: false,
+          timestamp: new Date(),
+        };
 
-      setMessages((prev) => [...prev, aiMessage]);
+        setMessages((prev) => [...prev, aiMessage]);
+      }
     } catch (error) {
       console.error("Error getting AI response:", error);
       const errorMessage: Message = {
@@ -171,15 +180,23 @@ export default function ChatbotSection() {
   };
 
   // const handleSendMessage = async () => {
-  //   if (!sessionId) {
-  //     makeSession();
-  //   }
-
   //   if (!inputValue.trim() || isLoading) return;
 
-  //   setMessages((prev) => [...prev, userMessage]);
-  //   setInputValue("");
+  //   if (!sessionId) {
+  //     await makeSession();
+  //   }
+
   //   setIsLoading(true);
+
+  //   const userMsg: Message = {
+  //     id: Date.now().toString(),
+  //     content: inputValue,
+  //     isUser: true,
+  //     timestamp: new Date(),
+  //   };
+
+  //   setMessages((prev) => [...prev, userMsg]);
+  //   setInputValue("");
 
   //   const msg = {
   //     session_id: sessionId,
@@ -190,11 +207,18 @@ export default function ChatbotSection() {
   //   try {
   //     const aiResponse = await createChatMutation(msg).unwrap();
 
-  //     console.log("aiResponse", aiResponse);
+  //     const aiMessage: Message = {
+  //       id: (Date.now() + 1).toString(),
+  //       content: aiResponse?.data?.[0]?.response_text ?? "No response found.",
+  //       isUser: false,
+  //       timestamp: new Date(),
+  //     };
+
+  //     setMessages((prev) => [...prev, aiMessage]);
   //   } catch (error) {
   //     console.error("Error getting AI response:", error);
   //     const errorMessage: Message = {
-  //       id: (Date.now() + 1).toString(),
+  //       id: (Date.now() + 2).toString(),
   //       content:
   //         "Sorry, I'm having trouble responding right now. Please try again.",
   //       isUser: false,
@@ -232,27 +256,15 @@ export default function ChatbotSection() {
     setIsSidebarOpen(false);
   };
 
-  const groupChatsByDate = (chats: ChatSession[]) => {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const weekAgo = new Date(today);
-    weekAgo.setDate(weekAgo.getDate() - 7);
-
-    return {
-      today: chats.filter(
-        (chat) => chat.lastMessage.toDateString() === today.toDateString()
-      ),
-      yesterday: chats.filter(
-        (chat) => chat.lastMessage.toDateString() === yesterday.toDateString()
-      ),
-      previous: chats.filter(
-        (chat) => chat.lastMessage < yesterday && chat.lastMessage > weekAgo
-      ),
-    };
+  const handleChatSelect = (chatId: string) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("session_id", chatId);
+    window.history.replaceState(null, "", url.toString());
+    setCurrentChatId(chatId);
+    setIsSidebarOpen(false);
+    refetch();
+    scrollToBottom();
   };
-
-  const groupedChats = groupChatsByDate(chatSessions);
 
   const SidebarContent = () => (
     <div className='flex flex-col h-full bg-black text-white'>
@@ -298,67 +310,77 @@ export default function ChatbotSection() {
       {/* Chat History */}
       <ScrollArea className='flex-1 p-4'>
         <div className='space-y-6'>
-          {/* Today */}
-          {groupedChats.today.length > 0 && (
+          {/* Displaying Today's Sessions */}
+
+          <div className='flex items-center justify-center mb-4'>
+            {sessionLoading && (
+              <FadeLoader
+                color={"#cccccc"}
+                loading={true}
+                speedMultiplier={1.2}
+                aria-label='Loading Spinner'
+                data-testid='loader'
+              />
+            )}
+          </div>
+
+          {allSessions?.today?.length > 0 && (
             <div>
               <h3 className='text-sm font-medium text-gray-400 mb-3'>Today</h3>
               <div className='space-y-2'>
-                {groupedChats.today.map((chat) => (
+                {allSessions?.today?.map((session: Session) => (
                   <button
-                    key={chat.id}
-                    onClick={() => {
-                      setCurrentChatId(chat.id);
-                      setIsSidebarOpen(false);
-                    }}
+                    key={session?.session_id}
+                    onClick={() => handleChatSelect(session?.session_id)}
                     className='w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors'
                   >
-                    {chat.name}
+                    {session?.title}
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Yesterday */}
-          {groupedChats.yesterday.length > 0 && (
+          {/* Displaying Yesterday's Sessions */}
+          {allSessions?.yesterday?.length > 0 && (
             <div>
               <h3 className='text-sm font-medium text-gray-400 mb-3'>
                 Yesterday
               </h3>
               <div className='space-y-2'>
-                {groupedChats.yesterday.map((chat) => (
+                {allSessions?.yesterday?.map((session: Session) => (
                   <button
-                    key={chat.id}
+                    key={session.session_id}
                     onClick={() => {
-                      setCurrentChatId(chat.id);
+                      setCurrentChatId(session.session_id);
                       setIsSidebarOpen(false);
                     }}
                     className='w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors'
                   >
-                    {chat.name}
+                    {session.title}
                   </button>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Previous 7 Days */}
-          {groupedChats.previous.length > 0 && (
+          {/* Displaying Previous Week's Sessions */}
+          {allSessions?.last_week?.length > 0 && (
             <div>
               <h3 className='text-sm font-medium text-gray-400 mb-3'>
-                Previous 7 Days
+                Last Week
               </h3>
               <div className='space-y-2'>
-                {groupedChats.previous.map((chat) => (
+                {allSessions?.last_week?.map((session: Session) => (
                   <button
-                    key={chat.id}
+                    key={session.session_id}
                     onClick={() => {
-                      setCurrentChatId(chat.id);
+                      setCurrentChatId(session.session_id);
                       setIsSidebarOpen(false);
                     }}
                     className='w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors'
                   >
-                    {chat.name}
+                    {session.title}
                   </button>
                 ))}
               </div>
@@ -386,15 +408,6 @@ export default function ChatbotSection() {
 
         {/* Main Chat Area */}
         <div className='flex-1 flex flex-col bg-[#1a1a1a]'>
-          {/* middle loading screen over the chat area */}
-          {/* {isLoading && (
-            <div className='absolute inset-0 flex items-center justify-center bg-black/50 z-10'>
-              <div className='text-white text-lg'>Processing...</div>
-            </div>
-          )} */}
-
-          {/* Header */}
-
           {/* Mobile Header */}
           <div className='md:hidden flex items-center justify-between p-4 bg-black/50 border-b border-gray-800'>
             <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
@@ -405,45 +418,126 @@ export default function ChatbotSection() {
               </SheetTrigger>
             </Sheet>
             <h1 className='text-white font-semibold'>Football AI Coach</h1>
-            <div className='w-10' /> {/* Spacer */}
+            <div className='w-10' />
           </div>
 
           {/* Messages Area */}
-          <ScrollArea className='flex-1 p-4 md:p-8'>
-            <div className='flex items-center justify-center min-h-[90vh] w-full'>
+          <ScrollArea className='flex-1 p-4 md:p-8 mb-24'>
+            <div className='relative flex items-center justify-center min-h-[90vh] w-full'>
               <div className='w-full max-w-4xl mx-auto space-y-6'>
                 {/* Welcome Message and Categories */}
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${
-                      message.isUser ? "justify-end" : "justify-start"
-                    }`}
-                  >
-                    <div
-                      className={`max-w-xs md:max-w-2xl px-4 py-3 rounded-2xl ${
-                        message.isUser
-                          ? "bg-purple-600 text-white"
-                          : "bg-gray-800 text-white"
-                      }`}
-                    >
-                      {/* <p className='text-sm md:text-base whitespace-pre-line'>
-                        {message.content}
-                      </p> */}
-                      {/* <ReactMarkdown className='prose prose-invert max-w-none'> */}
-                      <ReactMarkdown>{message.content}</ReactMarkdown>
-                      <p className='text-xs opacity-70 mt-1'>
-                        {message.timestamp.toLocaleTimeString()}
-                      </p>
+                {!sessionId && (
+                  <div className='text-center space-y-8'>
+                    <h1 className='text-2xl md:text-4xl font-bold text-white mb-8'>
+                      Hello! Ask Me About Global Football Vault.
+                    </h1>
+
+                    <div className='flex flex-wrap justify-center gap-3 md:gap-4'>
+                      {aiCategories.map((category) => (
+                        <Button
+                          key={category.id}
+                          onClick={() => handleCategoryClick(category)}
+                          variant='outline'
+                          className='bg-gray-800/50 border-gray-600 text-white hover:bg-gray-700 hover:text-white text-sm md:text-base px-4 py-2'
+                        >
+                          <span className='mr-2'>{category.icon}</span>
+                          {category.label}
+                        </Button>
+                      ))}
                     </div>
                   </div>
-                ))}
+                )}
 
-                {/* Chat Messages */}
+                {/* Welcome Message and Categories */}
+                <div className='flex items-center justify-center mb-4'>
+                  {chatLoading && (
+                    <FadeLoader
+                      color={"#cccccc"}
+                      loading={true}
+                      speedMultiplier={1.2}
+                      aria-label='Loading Spinner'
+                      data-testid='loader'
+                    />
+                  )}
+                </div>
+
+                {allChats?.data?.map(
+                  (chat: {
+                    session_id: string;
+                    query_text: string;
+                    response_text: string;
+                  }) => (
+                    <div key={chat?.session_id}>
+                      <h3 className='text-lg font-medium text-gray-300 mb-2'>
+                        🙋🏻‍♂️ {chat?.query_text}
+                      </h3>
+                      <div className='space-y-4'>
+                        {/* Loop through each response */}
+                        {chat?.response_text && (
+                          <div
+                            className={`flex ${
+                              true ? "justify-end" : "justify-start"
+                            }`}
+                          >
+                            <div
+                              className={`max-w-xs md:max-w-2xl px-4 py-3 rounded-2xl ${
+                                true
+                                  ? "bg-purple-600 text-white"
+                                  : "bg-gray-800 text-white"
+                              }`}
+                            >
+                              {/* <ReactMarkdown>
+                                {chat.response_text}
+                              </ReactMarkdown> */}
+
+                              <ReactMarkdown
+                                children={chat?.response_text}
+                                remarkPlugins={[remarkGfm]}
+                                components={{
+                                  ul: ({ children }) => (
+                                    <ul className='list-disc pl-6 text-sm text-gray-200'>
+                                      {children}
+                                    </ul>
+                                  ),
+                                  ol: ({ children }) => (
+                                    <ol className='list-decimal pl-6 text-sm text-gray-200'>
+                                      {children}
+                                    </ol>
+                                  ),
+                                  li: ({ children }) => (
+                                    <li className='py-1 text-lg text-gray-200'>
+                                      {children}
+                                    </li>
+                                  ),
+                                  p: ({ children }) => (
+                                    <p className='text-base text-gray-200 mb-2'>
+                                      {children}
+                                    </p>
+                                  ),
+                                  strong: ({ children }) => (
+                                    <strong className='text-white text-lg'>
+                                      {children}
+                                    </strong>
+                                  ),
+                                  em: ({ children }) => (
+                                    <em className='italic text-yellow-300 text-lg'>
+                                      {children}
+                                    </em>
+                                  ),
+                                  br: () => <br className='my-2' />,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                )}
 
                 {/* Loading Indicator */}
-                {isLoading && (
-                  <div className='flex justify-start'>
+                {isLoading ? (
+                  <div className='flex justify-start pb-40'>
                     <div className='bg-gray- text-white px-4 py-3 rounded-2xl'>
                       <div className='flex space-x-1'>
                         <div className='w-2 h-2 bg-gray-400 rounded-full animate-bounce' />
@@ -458,21 +552,18 @@ export default function ChatbotSection() {
                       </div>
                     </div>
                   </div>
-                )}
+                ) : null}
 
                 <div ref={messagesEndRef} />
 
-                <div className='w-full'>
+                <div
+                  className={`${
+                    sessionId &&
+                    "fixed bottom-6 left-[58.5%] transform -translate-x-1/2 block"
+                  } w-full`}
+                >
                   <div className='w-full max-w-4xl mx-auto'>
                     <div className='w-full relative max-h-80 flex gap-2 md:gap-4 bg-[#2d2d2d] rounded-2xl p-2'>
-                      {/* <Input
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyPress={handleKeyPress}
-                        placeholder='Ask Me About Anything Football...'
-                        className='flex-1 bg-transparent border-none text-white placeholder-gray-400 outline-none focus:ring-none text-sm md:text-base'
-                        disabled={isLoading}
-                      /> */}
                       <textarea
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
@@ -513,30 +604,6 @@ export default function ChatbotSection() {
               </div>
             </div>
           </ScrollArea>
-
-          {/* Input Area */}
-          {/* <div className='p-4 md:p-8 border-t border-gray-800'>
-            <div className='max-w-4xl mx-auto'>
-              <div className='flex gap-2 md:gap-4 bg-gray-800 rounded-2xl p-2'>
-                <Input
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder='Ask Me About Anything Football...'
-                  className='flex-1 bg-transparent border-none text-white placeholder-gray-400 focus:ring-0 text-sm md:text-base'
-                  disabled={isLoading}
-                />
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!inputValue.trim() || isLoading}
-                  size='icon'
-                  className='bg-purple-600 hover:bg-purple-700 text-white rounded-xl'
-                >
-                  <Send className='h-4 w-4 md:h-5 md:w-5' />
-                </Button>
-              </div>
-            </div>
-          </div> */}
         </div>
       </div>
     </section>

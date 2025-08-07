@@ -5,7 +5,7 @@ export const baseAPI = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_URL,
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem("accessToken");
+      const token = localStorage.getItem("access_Token");
 
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
