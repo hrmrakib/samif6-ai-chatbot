@@ -36,7 +36,7 @@ const ticketAPI = baseAPI.injectEndpoints({
 
     userPurchasedTickets: builder.query({
       query: () => ({
-        url: "api/ticket/my-purchase/",
+        url: "api/subscription/my-subscription-tickets/",
         method: "GET",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access_token")}`,

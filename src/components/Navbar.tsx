@@ -31,8 +31,6 @@ export default function Navbar() {
   const dispatch = useDispatch();
   const { data: user } = useGetProfileQuery({});
 
-  console.log(currentUser);
-
   useEffect(() => {
     const user = localStorage.getItem("samif6_user");
     if (user) {

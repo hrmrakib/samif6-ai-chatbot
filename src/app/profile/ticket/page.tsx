@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 import { useUserPurchasedTicketsQuery } from "@/redux/features/ticket/ticketAPI";
-import Loading from "@/components/Loading";
+import { FadeLoader } from "react-spinners";
 
 type TicketProps = {
   id: number;
@@ -26,11 +26,13 @@ type TicketProps = {
 export default function PurchasedTicketsPage() {
   const { data, isLoading } = useUserPurchasedTicketsQuery({});
 
+  console.log("user purchased tickets", data?.free_tickets);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
         return "bg-blue-100 text-gray-800";
-      case "success":
+      case "Succeeded":
         return "bg-green-100 text-green-800";
       case "expired":
         return "bg-red-100 text-red-800";
@@ -54,15 +56,15 @@ export default function PurchasedTicketsPage() {
 
         {/* Tickets Grid */}
         {isLoading ? (
-          <div>
-            <Loading />
+          <div className='flex items-center justify-center h-40'>
+            <FadeLoader color='white' />
           </div>
         ) : (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8'>
-            {data?.purchase_tickets?.map((ticket: TicketProps) => (
+            {data?.free_tickets?.map((ticket: TicketProps) => (
               <Card
                 key={ticket.id}
-                className='bg-white text-gray-900 hover:shadow-lg transition-shadow duration-300'
+                className='bg-gray-800 text-gray-100 hover:shadow-lg transition-shadow duration-300 border border-gray-500'
               >
                 <CardContent className='p-6'>
                   {/* Header */}
@@ -90,18 +92,18 @@ export default function PurchasedTicketsPage() {
                   <div className='space-y-3 mb-6'>
                     <div className='flex items-center gap-2'>
                       <DollarSign className='w-4 h-4 text-gray-500' />
-                      <span className='text-sm text-gray-600'>
+                      <span className='text-sm text-gray-100'>
                         Tickets Price:
                       </span>
                       <span className='font-semibold'>
-                        ${ticket?.total_price}
+                        ${ticket?.original_price_value}
                       </span>
                     </div>
 
                     <div className='flex items-center gap-2'>
-                      <Hash className='w-4 h-4 text-gray-500' />
-                      <span className='text-sm text-gray-600'>
-                        Ticket Number:
+                      <Hash className='w-4 h-4 text-gray-100' />
+                      <span className='text-sm text-gray-100'>
+                        Ticket Quantity:
                       </span>
                       <span className='font-mono text-base font-semibold'>
                         {ticket?.quantity}
@@ -109,8 +111,8 @@ export default function PurchasedTicketsPage() {
                     </div>
 
                     <div className='flex items-center gap-2'>
-                      <Calendar className='w-4 h-4 text-gray-500' />
-                      <span className='text-sm text-gray-600'>
+                      <Calendar className='w-4 h-4 text-gray-100' />
+                      <span className='text-sm text-gray-100'>
                         Purchased Date:
                       </span>
                       <span className='text-base font-semibold'>
@@ -118,39 +120,11 @@ export default function PurchasedTicketsPage() {
                       </span>
                     </div>
 
-                    <div className='text-sm text-gray-600'>
+                    <div className='text-sm text-gray-100'>
                       <span className='font-medium'>Billing Source:</span>{" "}
                       {ticket?.billing_source_label}
                     </div>
                   </div>
-
-                  {/* Actions */}
-                  {/* <div className='flex gap-2'>
-                  <Button
-                    onClick={() => handleOpenTicket(ticket)}
-                    className='flex-1 bg-purple-600 hover:bg-purple-700 text-white'
-                  >
-                    Open Ticket
-                  </Button>
-
-                  <Button
-                    onClick={() => handleDownloadTicket(ticket)}
-                    variant='outline'
-                    size='icon'
-                    className='border-gray-300 hover:bg-gray-100'
-                  >
-                    <Download className='w-4 h-4' />
-                  </Button>
-
-                  <Button
-                    onClick={() => handleShareTicket(ticket)}
-                    variant='outline'
-                    size='icon'
-                    className='border-gray-300 hover:bg-gray-100'
-                  >
-                    <Share2 className='w-4 h-4' />
-                  </Button>
-                </div> */}
                 </CardContent>
               </Card>
             ))}
@@ -174,7 +148,7 @@ export default function PurchasedTicketsPage() {
         <div className='mt-12 grid grid-cols-1 md:grid-cols-4 gap-4'>
           <div className='bg-gray-800 rounded-lg p-4 text-center'>
             <div className='text-2xl font-bold text-white'>
-              {data?.purchase_tickets?.length}
+              {data?.free_tickets?.length}
             </div>
             <div className='text-gray-400 text-sm'>Total Tickets</div>
           </div>

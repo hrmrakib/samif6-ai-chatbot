@@ -58,6 +58,26 @@ export const chatApi = createApi({
         body: data,
       }),
     }),
+
+    serachChats: builder.query({
+      query: ({ q, email }) => ({
+        url: `/ai/search/?q=${q}&email=${email}`,
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      }),
+    }),
+
+    deleteChat: builder.mutation({
+      query: (id) => ({
+        url: `/ai/chat/${id}/`,
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      }),
+    }),
   }),
 });
 
@@ -66,5 +86,6 @@ export const {
   useGetAiChatSessionQuery,
   useCreateSessionMutation,
   useCreateChatMutation,
+  useSerachChatsQuery,
 } = chatApi;
 export default chatApi;

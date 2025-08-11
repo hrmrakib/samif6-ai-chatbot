@@ -5,8 +5,7 @@
 import type React from "react";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, Menu, X, ArrowRight, SquarePen } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Search, Menu, ArrowRight, SquarePen, Trash } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import ReactMarkdown from "react-markdown";
@@ -21,6 +20,34 @@ import {
 import { useSearchParams } from "next/navigation";
 import remarkGfm from "remark-gfm";
 import { FadeLoader } from "react-spinners";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Plus, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+type ChatItem = {
+  id: string;
+  title: string;
+  date: string;
+  group: "Yesterday" | "Previous 7 Days" | "Older";
+};
+
+export type ChatSearchProps = {
+  chats?: ChatItem[];
+  onSelectChat?: (id: string) => void;
+  onNewChat?: () => void;
+  hotkey?: string;
+  chatSearchOpen?: boolean;
+};
 
 interface Message {
   id: string;
@@ -43,6 +70,7 @@ const aiCategories = [
 ];
 
 export default function ChatbotSection() {
+  const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session_id");
@@ -54,8 +82,10 @@ export default function ChatbotSection() {
       timestamp: new Date(),
     },
   ]);
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
+  const [newTitle, setNewTitle] = useState<string>("");
+  const [dropdownVisible, setDropdownVisible] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState("");
-
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -70,15 +100,18 @@ export default function ChatbotSection() {
   } = useGetAiChatBySessionQuery(sessionId, {
     skip: !sessionId,
   });
+
   const {
     data: allSessions,
     isLoading: sessionLoading,
     refetch: sessionRefetch,
-  } = useGetAiChatSessionQuery("alphabytes.gpt@gmail.com", {
+  } = useGetAiChatSessionQuery(email, {
     skip: !email,
   });
 
-  console.log({ allChats });
+  console.log("api not responding", allChats);
+
+  console.log("allSessions:", allSessions);
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -93,6 +126,22 @@ export default function ChatbotSection() {
       setEmail(mail);
     }
   }, []);
+
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen((o) => !o);
+      }
+      if (e.key === "Escape") setOpen(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  function handleSelect(value: string) {
+    setOpen(false);
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -179,58 +228,6 @@ export default function ChatbotSection() {
     }
   };
 
-  // const handleSendMessage = async () => {
-  //   if (!inputValue.trim() || isLoading) return;
-
-  //   if (!sessionId) {
-  //     await makeSession();
-  //   }
-
-  //   setIsLoading(true);
-
-  //   const userMsg: Message = {
-  //     id: Date.now().toString(),
-  //     content: inputValue,
-  //     isUser: true,
-  //     timestamp: new Date(),
-  //   };
-
-  //   setMessages((prev) => [...prev, userMsg]);
-  //   setInputValue("");
-
-  //   const msg = {
-  //     session_id: sessionId,
-  //     email: email,
-  //     query_text: inputValue,
-  //   };
-
-  //   try {
-  //     const aiResponse = await createChatMutation(msg).unwrap();
-
-  //     const aiMessage: Message = {
-  //       id: (Date.now() + 1).toString(),
-  //       content: aiResponse?.data?.[0]?.response_text ?? "No response found.",
-  //       isUser: false,
-  //       timestamp: new Date(),
-  //     };
-
-  //     setMessages((prev) => [...prev, aiMessage]);
-  //   } catch (error) {
-  //     console.error("Error getting AI response:", error);
-  //     const errorMessage: Message = {
-  //       id: (Date.now() + 2).toString(),
-  //       content:
-  //         "Sorry, I'm having trouble responding right now. Please try again.",
-  //       isUser: false,
-  //       timestamp: new Date(),
-  //     };
-  //     setMessages((prev) => [...prev, errorMessage]);
-  //   } finally {
-  //     setIsLoading(false);
-  //     scrollToBottom();
-  //   }
-  // };
-
   const handleCategoryClick = (category: (typeof aiCategories)[0]) => {
     const categoryMessage = `Tell me about ${category.label.toLowerCase()}`;
     setInputValue(categoryMessage);
@@ -244,16 +241,7 @@ export default function ChatbotSection() {
   };
 
   const startNewChat = () => {
-    setMessages([
-      {
-        id: "1",
-        content: "Hello! Ask Me About Global Football Vault.",
-        isUser: false,
-        timestamp: new Date(),
-      },
-    ]);
-    setCurrentChatId(null);
-    setIsSidebarOpen(false);
+    makeSession();
   };
 
   const handleChatSelect = (chatId: string) => {
@@ -264,6 +252,17 @@ export default function ChatbotSection() {
     setIsSidebarOpen(false);
     refetch();
     scrollToBottom();
+  };
+
+  const toggleDropdown = (sessionId: string) => {
+    setDropdownVisible((prev) => (prev === sessionId ? null : sessionId));
+  };
+
+  // Handle editing session title
+  const handleEditSession = (sessionId: string) => {
+    setEditingSessionId(sessionId);
+    const session = allSessions?.today?.find((s) => s.session_id === sessionId);
+    if (session) setNewTitle(session.title);
   };
 
   const SidebarContent = () => (
@@ -291,7 +290,7 @@ export default function ChatbotSection() {
           <Button
             variant='ghost'
             size='icon'
-            onClick={startNewChat}
+            onClick={() => setOpen(true)}
             className='text-gray-400 hover:text-white hover:bg-gray-800'
           >
             <Search className='h-6 w-6' />
@@ -311,7 +310,6 @@ export default function ChatbotSection() {
       <ScrollArea className='flex-1 p-4'>
         <div className='space-y-6'>
           {/* Displaying Today's Sessions */}
-
           <div className='flex items-center justify-center mb-4'>
             {sessionLoading && (
               <FadeLoader
@@ -324,22 +322,40 @@ export default function ChatbotSection() {
             )}
           </div>
 
-          {allSessions?.today?.length > 0 && (
-            <div>
-              <h3 className='text-sm font-medium text-gray-400 mb-3'>Today</h3>
-              <div className='space-y-2'>
-                {allSessions?.today?.map((session: Session) => (
-                  <button
-                    key={session?.session_id}
-                    onClick={() => handleChatSelect(session?.session_id)}
-                    className='w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors'
-                  >
-                    {session?.title}
-                  </button>
-                ))}
+          <div className='space-y-2'>
+            {allSessions?.today?.map((session: Session) => (
+              <div
+                key={session.session_id}
+                className='relative group space-y-1'
+              >
+                <button
+                  onClick={() => handleChatSelect(session.session_id)}
+                  className='w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors'
+                >
+                  {editingSessionId === session.session_id ? (
+                    <input
+                      value={newTitle}
+                      onChange={(e) => setNewTitle(e.target.value)}
+                      className='bg-gray-700 text-white rounded-md p-2 w-full'
+                      autoFocus
+                    />
+                  ) : (
+                    session.title
+                  )}
+                </button>
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleDropdown(session.session_id);
+                  }}
+                  className='absolute right-2 top-2 text-gray-300 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity'
+                >
+                  <Trash className='h-5 w-5  hover:text-red-500' />
+                </button>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
 
           {/* Displaying Yesterday's Sessions */}
           {allSessions?.yesterday?.length > 0 && (
@@ -351,10 +367,7 @@ export default function ChatbotSection() {
                 {allSessions?.yesterday?.map((session: Session) => (
                   <button
                     key={session.session_id}
-                    onClick={() => {
-                      setCurrentChatId(session.session_id);
-                      setIsSidebarOpen(false);
-                    }}
+                    onClick={() => handleChatSelect(session?.session_id)}
                     className='w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors'
                   >
                     {session.title}
@@ -363,7 +376,6 @@ export default function ChatbotSection() {
               </div>
             </div>
           )}
-
           {/* Displaying Previous Week's Sessions */}
           {allSessions?.last_week?.length > 0 && (
             <div>
@@ -374,10 +386,45 @@ export default function ChatbotSection() {
                 {allSessions?.last_week?.map((session: Session) => (
                   <button
                     key={session.session_id}
-                    onClick={() => {
-                      setCurrentChatId(session.session_id);
-                      setIsSidebarOpen(false);
-                    }}
+                    onClick={() => handleChatSelect(session?.session_id)}
+                    className='w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors'
+                  >
+                    {session.title}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Displaying last_month Sessions */}
+          {allSessions?.last_month?.length > 0 && (
+            <div>
+              <h3 className='text-sm font-medium text-gray-400 mb-3'>
+                Last Month
+              </h3>
+              <div className='space-y-2'>
+                {allSessions?.last_month?.map((session: Session) => (
+                  <button
+                    key={session.session_id}
+                    onClick={() => handleChatSelect(session?.session_id)}
+                    className='w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors'
+                  >
+                    {session.title}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Displaying last_year Sessions */}
+          {allSessions?.last_year?.length > 0 && (
+            <div>
+              <h3 className='text-sm font-medium text-gray-400 mb-3'>
+                Last Year
+              </h3>
+              <div className='space-y-2'>
+                {allSessions?.last_year?.map((session: Session) => (
+                  <button
+                    key={session.session_id}
+                    onClick={() => handleChatSelect(session?.session_id)}
                     className='w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors'
                   >
                     {session.title}
@@ -390,6 +437,8 @@ export default function ChatbotSection() {
       </ScrollArea>
     </div>
   );
+
+  console.log("allChats?.data", allChats?.data?.length);
 
   return (
     <section className='max-h-screen bg-gradient-to-br from-[#000000] via-[#000000] to-[#0000004c] shadow-black/20  relative overflow-hidden'>
@@ -408,6 +457,56 @@ export default function ChatbotSection() {
 
         {/* Main Chat Area */}
         <div className='flex-1 flex flex-col bg-[#1a1a1a]'>
+          {/* Chat Search */}
+          <div>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogContent
+                className={cn(
+                  "gap-0 p-0 overflow-hidden border-neutral-800",
+                  "sm:max-w-2xl bg-neutral-900 text-neutral-100"
+                )}
+              >
+                {/* Header with close */}
+                <div className='relative border-b border-neutral-800'>
+                  <button
+                    aria-label='Close'
+                    onClick={() => setOpen(false)}
+                    className='absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-md text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'
+                  >
+                    <X className='h-4 w-4' />
+                  </button>
+                  <Command className='bg-transparent'>
+                    <CommandInput
+                      placeholder='Search chats…'
+                      className='h-12 border-0 bg-transparent text-neutral-100 placeholder:text-neutral-500 focus:ring-0'
+                    />
+                  </Command>
+                </div>
+
+                <Command className='bg-transparent'>
+                  <CommandList className='max-h-[60vh]'>
+                    <CommandEmpty className='py-6 text-neutral-400'>
+                      No results found.
+                    </CommandEmpty>
+
+                    <CommandGroup heading='' className='px-2 py-3'>
+                      <CommandItem
+                        value='new'
+                        onSelect={handleSelect}
+                        className='mb-1 h-11 rounded-lg bg-neutral-800/70 text-neutral-100 hover:bg-neutral-800 data-[selected=true]:bg-neutral-800'
+                      >
+                        <Plus className='mr-2 h-4 w-4 text-neutral-300' />
+                        New chat
+                      </CommandItem>
+                    </CommandGroup>
+
+                    <CommandSeparator className='bg-neutral-800' />
+                  </CommandList>
+                </Command>
+              </DialogContent>
+            </Dialog>
+          </div>
+
           {/* Mobile Header */}
           <div className='md:hidden flex items-center justify-between p-4 bg-black/50 border-b border-gray-800'>
             <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
@@ -426,31 +525,32 @@ export default function ChatbotSection() {
             <div className='relative flex items-center justify-center min-h-[90vh] w-full'>
               <div className='w-full max-w-4xl mx-auto space-y-6'>
                 {/* Welcome Message and Categories */}
-                {!sessionId && (
-                  <div className='text-center space-y-8'>
-                    <h1 className='text-2xl md:text-4xl font-bold text-white mb-8'>
-                      Hello! Ask Me About Global Football Vault.
-                    </h1>
+                {allChats?.data?.length === 0 ||
+                  (!sessionId && (
+                    <div className='text-center space-y-8'>
+                      <h1 className='text-2xl md:text-4xl font-bold text-white mb-8'>
+                        Hello! Ask Me About Global Football Vault.
+                      </h1>
 
-                    <div className='flex flex-wrap justify-center gap-3 md:gap-4'>
-                      {aiCategories.map((category) => (
-                        <Button
-                          key={category.id}
-                          onClick={() => handleCategoryClick(category)}
-                          variant='outline'
-                          className='bg-gray-800/50 border-gray-600 text-white hover:bg-gray-700 hover:text-white text-sm md:text-base px-4 py-2'
-                        >
-                          <span className='mr-2'>{category.icon}</span>
-                          {category.label}
-                        </Button>
-                      ))}
+                      <div className='flex flex-wrap justify-center gap-3 md:gap-4'>
+                        {aiCategories.map((category) => (
+                          <Button
+                            key={category.id}
+                            onClick={() => handleCategoryClick(category)}
+                            variant='outline'
+                            className='bg-gray-800/50 border-gray-600 text-white hover:bg-gray-700 hover:text-white text-sm md:text-base px-4 py-2'
+                          >
+                            <span className='mr-2'>{category.icon}</span>
+                            {category.label}
+                          </Button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  ))}
 
                 {/* Welcome Message and Categories */}
                 <div className='flex items-center justify-center mb-4'>
-                  {chatLoading && (
+                  {chatLoading ? (
                     <FadeLoader
                       color={"#cccccc"}
                       loading={true}
@@ -458,22 +558,29 @@ export default function ChatbotSection() {
                       aria-label='Loading Spinner'
                       data-testid='loader'
                     />
-                  )}
+                  ) : null}
                 </div>
+
+                {allChats?.data?.length === 0 ? (
+                  <div className='flex items-center justify-center mb-4'>
+                    <h2 className='text-[30px] font-medium text-gray-300 mb-2'>
+                      No Chat Found
+                    </h2>
+                  </div>
+                ) : null}
 
                 {allChats?.data?.map(
                   (chat: {
-                    session_id: string;
+                    response_id: string;
                     query_text: string;
                     response_text: string;
                   }) => (
-                    <div key={chat?.session_id}>
+                    <div key={chat?.response_id}>
                       <h3 className='text-lg font-medium text-gray-300 mb-2'>
-                        🙋🏻‍♂️ {chat?.query_text}
+                        🙋🏻‍♂️ {chat?.query_text}{" "}
                       </h3>
                       <div className='space-y-4'>
-                        {/* Loop through each response */}
-                        {chat?.response_text && (
+                        {typeof chat?.response_text === "string" && (
                           <div
                             className={`flex ${
                               true ? "justify-end" : "justify-start"
@@ -482,14 +589,10 @@ export default function ChatbotSection() {
                             <div
                               className={`max-w-xs md:max-w-2xl px-4 py-3 rounded-2xl ${
                                 true
-                                  ? "bg-purple-600 text-white"
+                                  ? "bg-gray-800 text-white"
                                   : "bg-gray-800 text-white"
                               }`}
                             >
-                              {/* <ReactMarkdown>
-                                {chat.response_text}
-                              </ReactMarkdown> */}
-
                               <ReactMarkdown
                                 children={chat?.response_text}
                                 remarkPlugins={[remarkGfm]}

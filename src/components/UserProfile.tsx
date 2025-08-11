@@ -21,22 +21,6 @@ import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
 import { handleLogout } from "@/redux/features/auth/userSlice";
 import { useDispatch } from "react-redux";
 
-interface UserData {
-  name: string;
-  email: string;
-  avatar: string;
-  ticketCount: number;
-  membershipTier: string;
-}
-
-const userData: UserData = {
-  name: "Dr. Jane Nicholson",
-  email: "Jane20@Gmail.Com",
-  avatar: "/profile.jpg",
-  ticketCount: 12,
-  membershipTier: "Premium",
-};
-
 export default function UserProfileDropdown() {
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
   const [activeSection, setActiveSection] = useState("profile");
@@ -139,11 +123,6 @@ export default function UserProfileDropdown() {
             >
               <Ticket className='w-5 h-5' />
               <span className='font-medium'>Purchased Tickets</span>
-              {userData.ticketCount > 0 && (
-                <span className='ml-auto bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full'>
-                  {userData.ticketCount}
-                </span>
-              )}
             </button>
 
             {/* Settings with Dropdown */}

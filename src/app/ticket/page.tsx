@@ -1,11 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  useGetTicketsQuery,
-  useTicketCheckoutMutation,
-} from "@/redux/features/ticket/ticketAPI";
-import Loading from "@/components/Loading";
-import { toast } from "sonner";
+import { useGetTicketsQuery } from "@/redux/features/ticket/ticketAPI";
+import { FadeLoader } from "react-spinners";
+import Link from "next/link";
 
 interface Ticket {
   id: number;
@@ -21,9 +18,8 @@ interface Ticket {
 }
 
 export default function TicketDetailsPage() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [ticketQuantity, setTicketQuantity] = useState(1);
-  const [ticketCheckoutMutation] = useTicketCheckoutMutation();
+  const [isLoading] = useState(false);
+  const [ticketQuantity] = useState(1);
   const [ticketData, setTicketData] = useState<Ticket>({
     id: 0,
     ticket_id: "",
@@ -38,8 +34,6 @@ export default function TicketDetailsPage() {
   });
 
   const { data, isLoading: ticketsLoading } = useGetTicketsQuery({});
-
-  console.log(data?.ticket);
 
   useEffect(() => {
     if (data?.ticket) {
@@ -83,55 +77,6 @@ export default function TicketDetailsPage() {
 
   const [qrPattern] = useState(generateQRPattern());
 
-  const handlePurchase = async () => {
-    if (ticketData.total_available <= 0) {
-      alert("Sorry, no tickets available!");
-      return;
-    }
-
-    setIsLoading(true);
-
-    try {
-      const res = await ticketCheckoutMutation({
-        quantity: ticketQuantity,
-      });
-
-      console.log(res);
-
-      // if (res?.) {
-      //   toast("✖️ User does not have an active subscription.");
-      // }
-
-      if (res?.data?.success) {
-        window.location.href = res?.data?.session_id;
-      } else if (res?.error) {
-        if ("data" in res.error) {
-          const errorData = res.error.data as {
-            success: boolean;
-            message: string;
-          };
-
-          if (errorData.success === false) {
-            toast.error(errorData.message);
-          } else {
-            toast.error("An error occurred, but no message was provided.");
-          }
-        } else {
-          toast.error("An unknown error occurred.");
-        }
-      }
-
-      setTicketData((prev) => ({
-        ...prev,
-        availableTickets: prev.total_available - 1,
-      }));
-    } catch (error) {
-      console.error("Purchase error:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -145,7 +90,9 @@ export default function TicketDetailsPage() {
     <div className='min-h-screen bg-[url("/auth-bg.png")] bg-no-repeat bg-cover bg-center relative z-[1] flex items-center justify-center p-4'>
       <div className='w-full max-w-2xl'>
         {ticketsLoading ? (
-          <Loading />
+          <div className='flex items-center justify-center h-70vh'>
+            <FadeLoader color='white' />
+          </div>
         ) : (
           <div className='bg-white rounded-3xl shadow-2xl p-8 space-y-8'>
             {/* Header */}
@@ -154,17 +101,21 @@ export default function TicketDetailsPage() {
                 Ticket Details
               </h1>
               <div className='text-right'>
-                <span className='text-sm text-gray-600'>
+                <span className='text-xl text-gray-600'>
                   Total Available Tickets:{" "}
                 </span>
-                <span className='text-red-500 font-bold text-lg'>
+                <span className='text-red-500 font-bold text-xl border border-red-500 px-2 rounded-3xl animate-bounce'>
                   {ticketData?.total_available}
                 </span>
               </div>
             </div>
 
+            <div>
+              <p className='text-xl text-gray-600'>
+                ✅ After subscription, you will get free tickets for giveway.
+              </p>
+            </div>
             {/* Ticket Design */}
-
             <div className='relative'>
               <div className='bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl overflow-hidden shadow-xl'>
                 <div className='flex'>
@@ -258,8 +209,29 @@ export default function TicketDetailsPage() {
               </p>
             </div>
 
+            <div className='flex justify-center'>
+              <Link href='/#membership'>
+                <button
+                  type='button'
+                  disabled={
+                    isLoading ||
+                    ticketData?.total_available <= 0 ||
+                    ticketQuantity <= 0 ||
+                    ticketQuantity >= ticketData?.total_available
+                  }
+                  className={`px-8 py-4 rounded-full font-semibold text-white transition-all disabled:cursor-not-allowed duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-purple-500 focus:ring-opacity-50 ${
+                    ticketData?.total_available < ticketQuantity
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-lg"
+                  }`}
+                >
+                  Get Subscription
+                </button>
+              </Link>
+            </div>
+
             {/* Purchase Button */}
-            <div className='text-center flex flex-col items-center gap-6'>
+            {/* <div className='text-center flex flex-col items-center gap-6'>
               <div className='flex flex-col items-start gap-1'>
                 <label className='text-gray-600'>Quantity:</label>
                 <input
@@ -300,7 +272,7 @@ export default function TicketDetailsPage() {
                   "Purchase Now"
                 )}
               </button>
-            </div>
+            </div> */}
           </div>
         )}
       </div>
