@@ -48,6 +48,17 @@ export const chatApi = createApi({
       }),
     }),
 
+    deleteSession: builder.mutation({
+      query: (body) => ({
+        url: `/ai/delete_session_chats/`,
+        method: "DELETE",
+        body,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      }),
+    }),
+
     createChat: builder.mutation({
       query: (data) => ({
         url: "/ai/chat/",
@@ -86,6 +97,8 @@ export const {
   useGetAiChatSessionQuery,
   useCreateSessionMutation,
   useCreateChatMutation,
+  useDeleteSessionMutation,
+  useDeleteChatMutation,
   useSerachChatsQuery,
 } = chatApi;
 export default chatApi;

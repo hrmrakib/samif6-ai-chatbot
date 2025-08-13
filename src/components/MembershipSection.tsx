@@ -11,6 +11,9 @@ import {
   useCreateSubscriptionMutation,
   useGetSubscriptionQuery,
 } from "@/redux/features/subscription/subscriptionAPI";
+import { toast } from "sonner";
+import { FadeLoader } from "react-spinners";
+import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
 
 interface MembershipPlan {
   id: number;
@@ -35,9 +38,9 @@ export default function MembershipSection() {
   const [loadingPlanId, setLoadingPlanId] = useState<string | number | null>(
     null
   );
-  const { data } = useGetSubscriptionQuery({});
+  const { data, isLoading } = useGetSubscriptionQuery({});
   const [createSubscriptionMutation] = useCreateSubscriptionMutation();
-
+  const { data: user } = useGetProfileQuery({});
   const handlePlanSelection = async (planName: string | number) => {
     setSelectedPlan(planName);
     setLoadingPlanId(planName);
@@ -47,10 +50,17 @@ export default function MembershipSection() {
         billing_cycle: billingCycle,
       });
 
-      console.log(res);
+      console.log(res?.error);
 
       if (res?.data?.success) {
         window.location.href = res?.data?.checkout_url;
+        return;
+      }
+      if (res?.error) {
+        toast(`✖️ ${res?.error?.data?.message}`);
+        setTimeout(() => {
+          toast(`✖️ ${res?.error?.data?.detail}`);
+        }, 3500);
       }
     } catch (error) {
       console.error("Error creating subscription:", error);
@@ -104,6 +114,18 @@ export default function MembershipSection() {
 
         {/* Pricing Cards */}
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto'>
+          {isLoading ? (
+            <div className='flex items-center justify-center'>
+              <FadeLoader
+                color={"#cccccc"}
+                loading={true}
+                speedMultiplier={1.2}
+                aria-label='Loading Spinner'
+                data-testid='loader'
+              />
+            </div>
+          ) : null}
+
           {data?.data?.map((plan: MembershipPlan) => (
             <Card
               key={plan.id}

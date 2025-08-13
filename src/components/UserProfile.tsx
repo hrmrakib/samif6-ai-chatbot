@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
 import { handleLogout } from "@/redux/features/auth/userSlice";
 import { useDispatch } from "react-redux";
+import { useCancelSubscriptionMutation } from "@/redux/features/subscription/subscriptionAPI";
 
 export default function UserProfileDropdown() {
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(false);
@@ -27,6 +28,7 @@ export default function UserProfileDropdown() {
   const router = useRouter();
   const { data: user } = useGetProfileQuery({});
   const dispatch = useDispatch();
+  const [cancelSubscriptionMutation] = useCancelSubscriptionMutation({});
 
   const handleTicketsClick = () => {
     setActiveSection("tickets");
@@ -50,6 +52,17 @@ export default function UserProfileDropdown() {
   const handleLogoutMe = () => {
     dispatch(handleLogout());
     router.push("/");
+  };
+
+  const handleCancelSubscription = async () => {
+    const confirm = window.confirm(
+      "Are you sure you want to cancel your subscription?"
+    );
+    if (!confirm) return;
+    else {
+      const res = await cancelSubscriptionMutation({});
+      console.log(res);
+    }
   };
 
   return (
@@ -85,11 +98,22 @@ export default function UserProfileDropdown() {
                   {user?.full_name}
                 </h3>
                 <p className='text-gray-600 text-sm truncate'>{user?.email}</p>
-                <div className='flex items-center gap-2 mt-1'>
-                  <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize bg-purple-100 text-purple-800'>
-                    {user?.subscribed_plan_status?.plan__name}
-                  </span>
-                </div>
+                {user?.subscribed_plan_status?.plan__name && (
+                  <div className='flex items-center gap-2 mt-1'>
+                    <span className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize bg-purple-100 text-purple-800'>
+                      {user?.subscribed_plan_status?.plan__name}
+                    </span>
+
+                    {user?.subscribed_plan_status?.plan__name ? (
+                      <button
+                        onClick={() => handleCancelSubscription()}
+                        className='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium capitalize  bg-red-500 text-white'
+                      >
+                        Cancel Subscription
+                      </button>
+                    ) : null}
+                  </div>
+                )}
               </div>
             </div>
           </div>

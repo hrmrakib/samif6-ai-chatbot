@@ -19,9 +19,22 @@ const subscriptionAPI = baseAPI.injectEndpoints({
         body: data,
       }),
     }),
+
+    cancelSubscription: builder.mutation({
+      query: () => ({
+        url: "api/subscription/cancel-subscription/",
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+        },
+      }),
+    }),
   }),
 });
 
-export const { useGetSubscriptionQuery, useCreateSubscriptionMutation } =
-  subscriptionAPI;
+export const {
+  useGetSubscriptionQuery,
+  useCreateSubscriptionMutation,
+  useCancelSubscriptionMutation,
+} = subscriptionAPI;
 export default subscriptionAPI;
