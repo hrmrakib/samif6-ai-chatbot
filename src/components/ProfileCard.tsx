@@ -14,9 +14,12 @@ import {
 
 interface UserProfile {
   full_name: string;
+  age?: number;
   email: string;
   profile_pic?: string;
   mobile_no?: string;
+  club_name?: string;
+  playing_level?: string;
   location?: string;
 }
 
@@ -24,9 +27,12 @@ export default function ProfileCard() {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState<UserProfile>({
     full_name: "",
+    age: 0,
     email: "",
     profile_pic: "/profile.jpg",
     mobile_no: "",
+    club_name: "",
+    playing_level: "",
     location: "",
   });
   const [editedProfile, setEditedProfile] = useState<UserProfile>(profile);
@@ -58,12 +64,16 @@ export default function ProfileCard() {
     setIsLoading(true);
     try {
       const formData = new FormData();
+
       formData.append("full_name", editedProfile.full_name);
       formData.append("email", editedProfile.email);
       if (selectedFile) {
         formData.append("profile_pic", selectedFile);
       }
       formData.append("mobile_no", editedProfile.mobile_no || "");
+      formData.append("age", editedProfile.age?.toString() || "");
+      formData.append("club_name", editedProfile.club_name || "");
+      formData.append("playing_level", editedProfile.playing_level || "");
       formData.append("location", editedProfile.location || "");
 
       const res = await updateProfileMutation(formData).unwrap();
@@ -182,7 +192,7 @@ export default function ProfileCard() {
                     </div>
                   </div>
 
-                  {profile.mobile_no && (
+                  {profile?.mobile_no && (
                     <div>
                       <Label className='text-gray-600 text-sm font-medium'>
                         Phone:
@@ -191,7 +201,16 @@ export default function ProfileCard() {
                     </div>
                   )}
 
-                  {profile.location && (
+                  {profile?.club_name && (
+                    <div>
+                      <Label className='text-gray-600 text-sm font-medium'>
+                        Club Name:
+                      </Label>
+                      <p className='text-gray-700 mt-1'>{profile?.club_name}</p>
+                    </div>
+                  )}
+
+                  {profile?.location && (
                     <div>
                       <Label className='text-gray-600 text-sm font-medium'>
                         Location:
@@ -210,7 +229,7 @@ export default function ProfileCard() {
                 </div>
               ) : (
                 // Edit Mode
-                <div className='space-y-4'>
+                <div className='space-y-2.5'>
                   <div>
                     <Label
                       htmlFor='name'
@@ -226,6 +245,23 @@ export default function ProfileCard() {
                       }
                       className='mt-1'
                       placeholder='Enter your name'
+                    />
+                  </div>
+
+                  <div>
+                    <Label
+                      htmlFor='age'
+                      className='text-gray-600 text-sm font-medium'
+                    >
+                      Age:
+                    </Label>
+                    <Input
+                      type='number'
+                      id='age'
+                      value={editedProfile?.age}
+                      onChange={(e) => handleInputChange("age", e.target.value)}
+                      className='mt-1'
+                      placeholder='Enter your age'
                     />
                   </div>
 
@@ -263,6 +299,42 @@ export default function ProfileCard() {
                       }
                       className='mt-1'
                       placeholder='Enter your phone number'
+                    />
+                  </div>
+
+                  <div>
+                    <Label
+                      htmlFor='club_name'
+                      className='text-gray-600 text-sm font-medium'
+                    >
+                      Club Name:
+                    </Label>
+                    <Input
+                      id='club_name'
+                      value={editedProfile.club_name || ""}
+                      onChange={(e) =>
+                        handleInputChange("club_name", e.target.value)
+                      }
+                      className='mt-1'
+                      placeholder='Enter your Club Name'
+                    />
+                  </div>
+
+                  <div>
+                    <Label
+                      htmlFor='playing_level'
+                      className='text-gray-600 text-sm font-medium'
+                    >
+                      Playing Level:
+                    </Label>
+                    <Input
+                      id='playing_level'
+                      value={editedProfile?.playing_level || ""}
+                      onChange={(e) =>
+                        handleInputChange("playing_level", e.target.value)
+                      }
+                      className='mt-1'
+                      placeholder='Enter your Playing Level'
                     />
                   </div>
 

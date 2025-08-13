@@ -376,6 +376,7 @@ export default function ChatbotSection() {
               </div>
             </div>
           )}
+
           {/* Displaying Previous Week's Sessions */}
           {allSessions?.last_week?.length > 0 && (
             <div>
@@ -395,6 +396,7 @@ export default function ChatbotSection() {
               </div>
             </div>
           )}
+
           {/* Displaying last_month Sessions */}
           {allSessions?.last_month?.length > 0 && (
             <div>
@@ -414,6 +416,7 @@ export default function ChatbotSection() {
               </div>
             </div>
           )}
+
           {/* Displaying last_year Sessions */}
           {allSessions?.last_year?.length > 0 && (
             <div>
