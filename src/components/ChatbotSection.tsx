@@ -3,12 +3,11 @@
 import type React from "react";
 
 import { useState, useRef } from "react";
-import { Search, Menu, X, ArrowRight, SquarePen } from "lucide-react";
+import { Search, X, ArrowRight, SquarePen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import Image from "next/image";
-// import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 interface Message {
   id: string;
@@ -242,15 +241,16 @@ export default function ChatbotSection() {
         <div className='flex-1 flex flex-col bg-[#1a1a1a]'>
           {/* Mobile Header */}
           <div className='md:hidden flex items-center justify-between p-4 bg-black/50 border-b border-gray-800'>
-            <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+            {/* <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
               <SheetTrigger asChild>
                 <Button variant='ghost' size='icon' className='text-white'>
                   <Menu className='h-6 w-6' />
                 </Button>
               </SheetTrigger>
-            </Sheet>
-            <h1 className='text-white font-semibold'>Football AI Coach</h1>
-            <div className='w-10' /> {/* Spacer */}
+            </Sheet> */}
+            <h1 className='mx-auto flex items-center justify-center text-center text-white font-semibold'>
+              Football AI Coach
+            </h1>
           </div>
 
           {/* Messages Area */}
