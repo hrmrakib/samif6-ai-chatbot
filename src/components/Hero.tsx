@@ -10,7 +10,7 @@ export default function HeroSection() {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.play();
-    } 
+    }
   }, []);
 
   return (
@@ -28,7 +28,7 @@ export default function HeroSection() {
           poster='/hero-design.png'
         >
           {/* Placeholder video - replace with your actual video URL */}
-          <source src='/hero.mp4' type='video/mp4' />
+          <source src='/hero2.mp4' type='video/mp4' />
           {/* Fallback for browsers that don't support video */}
           <div className='w-full h-full bg-gradient-to-br from-purple-900 via-black to-purple-800' />
         </video>
