@@ -8,9 +8,9 @@ import { usePathname } from "next/navigation";
 const navigationLinks = [
   { name: "Home", href: "/" },
   { name: "The Football AI", href: "/football-ai" },
-  { name: "Exclusive Rewards", href: "/rewards" },
-  { name: "Become A Member", href: "/membership" },
-  { name: "Contact", href: "/contact" },
+  { name: "Exclusive Rewards", href: "#rewards" },
+  { name: "Become A Member", href: "#membership" },
+  { name: "Contact", href: "#contact" },
 ];
 
 const socialLinks = [

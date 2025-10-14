@@ -55,10 +55,10 @@ export default function FootballRewardSection() {
                 <div className='flex justify-between items-start mb-4'>
                   <div className='flex-1'>
                     <h3 className='font-bold text-lg sm:text-xl mb-1'>
-                      {data?.ticket?.title}
+                      {data?.ticket?.title || "Raffle Draw Ticket"}
                     </h3>
                     <p className='text-sm opacity-90'>
-                      {data?.ticket?.description}
+                      {data?.ticket?.description || "Global Football Vault"}
                     </p>
                   </div>
                   <div className='ml-4'>

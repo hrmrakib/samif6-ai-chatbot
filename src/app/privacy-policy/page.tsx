@@ -15,8 +15,10 @@ const TermsAndConditions = () => {
 
         <div className='mt-4 space-y-10 text-white text-lg md:text-xl'>
           {isLoading && <Loading />}
-          
-          <p>{data?.description}</p>
+
+          {!isLoading && data?.description && (
+            <div dangerouslySetInnerHTML={{ __html: data.description }} />
+          )}
         </div>
       </div>
     </div>

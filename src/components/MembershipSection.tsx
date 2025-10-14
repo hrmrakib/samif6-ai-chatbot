@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import type React from "react";
@@ -13,7 +14,7 @@ import {
 } from "@/redux/features/subscription/subscriptionAPI";
 import { toast } from "sonner";
 import { FadeLoader } from "react-spinners";
-import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
+// import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
 
 interface MembershipPlan {
   id: number;
@@ -40,7 +41,8 @@ export default function MembershipSection() {
   );
   const { data, isLoading } = useGetSubscriptionQuery({});
   const [createSubscriptionMutation] = useCreateSubscriptionMutation();
-  const { data: user } = useGetProfileQuery({});
+  // const { data: user } = useGetProfileQuery({});
+
   const handlePlanSelection = async (planName: string | number) => {
     setSelectedPlan(planName);
     setLoadingPlanId(planName);
@@ -57,10 +59,15 @@ export default function MembershipSection() {
         return;
       }
       if (res?.error) {
-        toast(`✖️ ${res?.error?.data?.message}`);
-        setTimeout(() => {
-          toast(`✖️ ${res?.error?.data?.detail}`);
-        }, 3500);
+        // Type guard for FetchBaseQueryError
+        if ("data" in res.error) {
+          toast(`✖️ ${(res.error as any)?.data?.message}`);
+          setTimeout(() => {
+            toast(`✖️ ${(res.error as any)?.data?.detail}`);
+          }, 3500);
+        } else {
+          toast("✖️ An error occurred.");
+        }
       }
     } catch (error) {
       console.error("Error creating subscription:", error);
