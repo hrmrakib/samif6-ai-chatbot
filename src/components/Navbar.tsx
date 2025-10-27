@@ -52,6 +52,7 @@ export default function Navbar() {
     return null;
   }
 
+  console.log(user);
   return (
     <nav className='w-full bg-transparent fixed top-0 z-50'>
       <div className='container mx-auto'>
@@ -92,7 +93,7 @@ export default function Navbar() {
 
           {/* Desktop Action Buttons */}
           {currentUser && user ? (
-            <div>
+            <div className='hidden md:flex items-center space-x-4'>
               <Image
                 src={
                   `${process.env.NEXT_PUBLIC_IMAGE_URL}${user?.profile_pic}` ||
@@ -157,21 +158,41 @@ export default function Navbar() {
                   ))}
 
                   {/* Mobile Action Buttons */}
-                  <div className='flex flex-col space-y-6 pt-6 border-t border-gray-800'>
-                    <Button
-                      variant='outline'
-                      className='border-gray-600 bg-[#534590] text-white hover:bg-gray-800 hover:text-white w-full'
-                      onClick={() => router.push("/login")}
-                    >
-                      Log In
-                    </Button>
-                    <Button
-                      className='bg-transparent hover:bg-[#534590] border text-white w-full'
-                      onClick={() => router.push("/signup")}
-                    >
-                      Sign Up
-                    </Button>
-                  </div>
+                  {user ? (
+                    <Link href='/profile' className='flex items-center space-x-4 pl-5 pt-12'>
+                      <Image
+                        src={
+                          `${process.env.NEXT_PUBLIC_IMAGE_URL}${user?.profile_pic}` ||
+                          "/first.png"
+                        }
+                        alt='User Avatar'
+                        width={48}
+                        height={48}
+                        className='w-12 h-12  rounded-full cursor-pointer border-2 border-gray-100'
+                        onClick={() => router.push("/profile")}
+                      />
+                      <div className='flex flex-col space-y-1 text-white'>
+                        <h2 className="text-xl">{user?.full_name}</h2>
+                        <h3 className="text-sm">{user?.email}</h3>
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className='flex flex-col space-y-6 pt-6 border-t border-gray-800'>
+                      <Button
+                        variant='outline'
+                        className='border-gray-600 bg-[#534590] text-white hover:bg-gray-800 hover:text-white w-full'
+                        onClick={() => router.push("/login")}
+                      >
+                        Log In
+                      </Button>
+                      <Button
+                        className='bg-transparent hover:bg-[#534590] border text-white w-full'
+                        onClick={() => router.push("/signup")}
+                      >
+                        Sign Up
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </SheetContent>
             </Sheet>

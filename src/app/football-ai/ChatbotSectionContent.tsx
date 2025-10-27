@@ -183,6 +183,10 @@ export default function ChatbotSectionContent() {
   }, [messages]);
 
   const makeSession = async () => {
+    if (!email) {
+        toast.warning("Please login to continue");
+        router.push("/login");
+      }
     try {
       const res = await createSessionMutation({ email }).unwrap();
       if (res?.session_id) {
