@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Message {
   id: string;
@@ -300,7 +301,7 @@ export default function ChatbotSection() {
 
                 <div ref={messagesEndRef} />
 
-                <div className=''>
+                <Link href='/football-ai' className='cursor-text'>
                   <div className='max-w-4xl mx-auto'>
                     <div className='relative h-28 md:h-32 flex gap-2 md:gap-4 bg-[#2d2d2d] rounded-2xl p-2'>
                       <p className='text-[#ffffff93] text-sm md:text-base flex-1 p-5'>
@@ -318,7 +319,7 @@ export default function ChatbotSection() {
                       </Button>
                     </div>
                   </div>
-                </div>
+                </Link>
               </div>
             </div>
           </ScrollArea>
