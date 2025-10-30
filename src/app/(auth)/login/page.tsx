@@ -2,12 +2,11 @@
 
 import { useLoginMutation } from "@/redux/features/auth/authAPI";
 import { setCurrentUser } from "@/redux/features/auth/userSlice";
-import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
 import { saveToken } from "@/service/authService";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { toast } from "sonner";
 
@@ -25,13 +24,6 @@ export default function LoginPage() {
   const router = useRouter();
   const [loginMutation] = useLoginMutation();
   const dispatch = useDispatch();
-  const { data: user } = useGetProfileQuery({});
-
-  useEffect(() => {
-    if (user) {
-      router.back();
-    }
-  }, [user, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
