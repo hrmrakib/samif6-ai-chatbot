@@ -269,7 +269,7 @@ export default function ContactSection() {
                 </Button>
               </form>
 
-              {/* Additional Info */}
+              {/* Additional Info */} 
               <div className='mt-8 text-center'>
                 <p className='text-gray-400 text-sm'>
                   By submitting this form, you agree to our{" "}

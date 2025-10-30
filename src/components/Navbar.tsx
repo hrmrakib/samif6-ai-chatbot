@@ -159,7 +159,10 @@ export default function Navbar() {
 
                   {/* Mobile Action Buttons */}
                   {user ? (
-                    <Link href='/profile' className='flex items-center space-x-4 pl-5 pt-12'>
+                    <Link
+                      href='/profile'
+                      className='flex items-center space-x-4 pl-5 pt-12'
+                    >
                       <Image
                         src={
                           `${process.env.NEXT_PUBLIC_IMAGE_URL}${user?.profile_pic}` ||
@@ -172,25 +175,27 @@ export default function Navbar() {
                         onClick={() => router.push("/profile")}
                       />
                       <div className='flex flex-col space-y-1 text-white'>
-                        <h2 className="text-xl">{user?.full_name}</h2>
-                        <h3 className="text-sm">{user?.email}</h3>
+                        <h2 className='text-xl'>{user?.full_name}</h2>
+                        <h3 className='text-sm'>{user?.email}</h3>
                       </div>
                     </Link>
                   ) : (
                     <div className='flex flex-col space-y-6 pt-6 border-t border-gray-800'>
-                      <Button
-                        variant='outline'
+                      <Link
+                        href={"/login"}
+                        // variant='outline'
                         className='border-gray-600 bg-[#534590] text-white hover:bg-gray-800 hover:text-white w-full'
-                        onClick={() => router.push("/login")}
+                        // onClick={() => router.push("/login")}
                       >
                         Log In
-                      </Button>
-                      <Button
+                      </Link>
+                      <Link
+                        href={"/signup"}
                         className='bg-transparent hover:bg-[#534590] border text-white w-full'
-                        onClick={() => router.push("/signup")}
+                        // onClick={() => router.push("")}
                       >
                         Sign Up
-                      </Button>
+                      </Link>
                     </div>
                   )}
                 </div>
