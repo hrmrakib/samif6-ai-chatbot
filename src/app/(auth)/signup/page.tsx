@@ -2,14 +2,13 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { Camera, Eye, EyeOff } from "lucide-react";
 import { useSignupMutation } from "@/redux/features/auth/authAPI";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -31,13 +30,6 @@ export default function SignUpPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [signup] = useSignupMutation();
-  const { data: user } = useGetProfileQuery({});
-
-  useEffect(() => {
-    if (user) {
-      router.back();
-    }
-  }, [user, router]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
