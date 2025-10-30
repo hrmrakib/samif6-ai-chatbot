@@ -50,13 +50,12 @@ export default function SignUpPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setProfileImage(file); // <-- actual file
-      setProfilePreview(URL.createObjectURL(file)); // <-- preview
+      setProfileImage(file);
+      setProfilePreview(URL.createObjectURL(file));
     }
   };
 
   const handleImageClick = () => {
-    // Trigger file input click when avatar is clicked
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
