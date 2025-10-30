@@ -183,16 +183,13 @@ export default function Navbar() {
                     <div className='flex flex-col space-y-6 pt-6 border-t border-gray-800'>
                       <Link
                         href={"/login"}
-                        // variant='outline'
                         className='border-gray-600 bg-[#534590] text-white hover:bg-gray-800 hover:text-white w-full'
-                        // onClick={() => router.push("/login")}
                       >
                         Log In
                       </Link>
                       <Link
                         href={"/signup"}
                         className='bg-transparent hover:bg-[#534590] border text-white w-full'
-                        // onClick={() => router.push("")}
                       >
                         Sign Up
                       </Link>
