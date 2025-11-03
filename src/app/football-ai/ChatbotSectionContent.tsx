@@ -344,11 +344,12 @@ export default function ChatbotSectionContent() {
     scrollToBottom();
   };
 
-  const handleSelectSession = (sessionId: string) => {
+  const handleSelectSession = async (sessionId: string) => {
     setCurrentSessionId(sessionId);
     scrollToBottom();
     setIsSidebarOpen(false);
     setOpen(false);
+    refetchChats();
   };
 
   const handleChatSelect = (chatId: string) => {
@@ -386,7 +387,7 @@ export default function ChatbotSectionContent() {
       <div>
         <h3 className='text-sm font-medium text-gray-400 mb-3'>{label}</h3>
         <div className='space-y-2'>
-          {sessions.map((session) => (
+          {sessions?.map((session) => (
             <div key={session.session_id} className='relative group space-y-1'>
               <button
                 onClick={() => handleChatSelect(session.session_id)}
@@ -683,8 +684,7 @@ export default function ChatbotSectionContent() {
                 ))}
 
                 <h3 className='text-lg font-medium text-gray-300 mb-2'>
-                  {inputTitleTemp && "🙋🏻‍♂️ "}
-                  {inputTitleTemp}
+                  {inputTitleTemp && "🙋🏻‍♂️ " + inputTitleTemp}
                 </h3>
 
                 {/* Loading Indicator */}
