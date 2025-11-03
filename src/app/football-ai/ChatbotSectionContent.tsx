@@ -206,6 +206,7 @@ export default function ChatbotSectionContent() {
       setOpen(false);
     }
   };
+  
   const handleSendMessage = async () => {
     const userInput = inputValue.trim();
 
@@ -345,11 +346,13 @@ export default function ChatbotSectionContent() {
   };
 
   const handleSelectSession = async (sessionId: string) => {
+    console.log(
+      { sessionId, currentSessionId: currentSessionId } + "handleSelectSession"
+    );
     setCurrentSessionId(sessionId);
     scrollToBottom();
     setIsSidebarOpen(false);
     setOpen(false);
-    refetchChats();
   };
 
   const handleChatSelect = (chatId: string) => {
@@ -359,6 +362,7 @@ export default function ChatbotSectionContent() {
     window.history.replaceState(null, "", url.toString());
     setIsSidebarOpen(false);
     scrollToBottom();
+    refetchChats();
   };
 
   const handleSessionDelete = async (sessionId: string) => {
@@ -408,8 +412,6 @@ export default function ChatbotSectionContent() {
       </div>
     );
   };
-
-  console.log(allSessions);
 
   const SidebarContent = () => (
     <div className='flex flex-col h-full bg-black text-white'>
