@@ -98,12 +98,9 @@ export default function ChatbotSectionContent() {
   );
   const router = useRouter();
 
-  const { data: allChats, refetch: refetchChats } = useGetAiChatBySessionQuery(
-    currentSessionId,
-    {
-      skip: !currentSessionId,
-    }
-  );
+  const { data: allChats } = useGetAiChatBySessionQuery(currentSessionId, {
+    skip: !currentSessionId,
+  });
 
   const {
     data: allSessions,
@@ -206,10 +203,11 @@ export default function ChatbotSectionContent() {
       setOpen(false);
     }
   };
-  const handleSendMessage = async () => {
-    const userInput = inputValue.trim();
 
-    if (!userInput || isLoading) return;
+  const handleSendMessage = async () => {
+    setInputTitleTemp(inputValue);
+    if (!inputValue.trim() || isLoading) return;
+
     setIsLoading(true);
 
     if (!currentSessionId) {
@@ -218,7 +216,7 @@ export default function ChatbotSectionContent() {
 
     const userMsg: Message = {
       response_id: "",
-      query_text: userInput,
+      query_text: inputValue,
       response_text: "",
     };
 
@@ -227,104 +225,44 @@ export default function ChatbotSectionContent() {
     const msg = {
       session_id: currentSessionId,
       email: email,
-      query_text: userInput,
+      query_text: inputValue,
     };
-
     setInputValue("");
 
     try {
       if (!email) {
         toast.warning("Please login to continue");
         router.push("/login");
-        return;
       }
-
       const aiResponse = await createChatMutation(msg).unwrap();
 
-      if (aiResponse?.data) {
+      console.log("aiResponse inside handleSendMessage:", aiResponse);
+
+      if (aiResponse?.session_id) {
         const aiMessage: Message = {
-          response_id: aiResponse.data.response_id,
-          query_text: userInput,
-          response_text: aiResponse.data.response_text,
+          response_id: aiResponse?.data?.response_id,
+          query_text: inputValue,
+          response_text: aiResponse?.data?.response_text,
         };
+
         setMessages((prev) => [...prev, aiMessage]);
-        refetchChats();
-        sessionRefetch();
       }
     } catch (error) {
       console.error("Error getting AI response:", error);
       const errorMessage: Message = {
         response_id: "error",
-        query_text: userInput,
+        query_text: inputValue,
         response_text:
           "Sorry, I'm having trouble responding right now. Please try again.",
       };
+
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
       scrollToBottom();
+      setInputTitleTemp("");
     }
   };
-
-  // const handleSendMessage = async () => {
-  //   setInputTitleTemp(inputValue);
-  //   if (!inputValue.trim() || isLoading) return;
-
-  //   setIsLoading(true);
-
-  //   if (!currentSessionId) {
-  //     await makeSession();
-  //   }
-
-  //   const userMsg: Message = {
-  //     response_id: "",
-  //     query_text: inputValue,
-  //     response_text: "",
-  //   };
-
-  //   setMessages((prev) => [...prev, userMsg]);
-
-  //   const msg = {
-  //     session_id: currentSessionId,
-  //     email: email,
-  //     query_text: inputValue,
-  //   };
-  //   setInputValue("");
-
-  //   try {
-  //     if (!email) {
-  //       toast.warning("Please login to continue");
-  //       router.push("/login");
-  //     }
-  //     const aiResponse = await createChatMutation(msg).unwrap();
-
-  //     console.log("aiResponse inside handleSendMessage:", aiResponse);
-
-  //     if (aiResponse?.session_id) {
-  //       const aiMessage: Message = {
-  //         response_id: aiResponse?.data?.response_id,
-  //         query_text: inputValue,
-  //         response_text: aiResponse?.data?.response_text,
-  //       };
-
-  //       setMessages((prev) => [...prev, aiMessage]);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error getting AI response:", error);
-  //     const errorMessage: Message = {
-  //       response_id: "error",
-  //       query_text: inputValue,
-  //       response_text:
-  //         "Sorry, I'm having trouble responding right now. Please try again.",
-  //     };
-
-  //     setMessages((prev) => [...prev, errorMessage]);
-  //   } finally {
-  //     setIsLoading(false);
-  //     scrollToBottom();
-  //     setInputTitleTemp("");
-  //   }
-  // };
 
   const handleCategoryClick = (category: (typeof aiCategories)[0]) => {
     const categoryMessage = `Tell me about ${category.label.toLowerCase()}`;
@@ -597,8 +535,8 @@ export default function ChatbotSectionContent() {
             <div className='relative flex items-center justify-center min-h-[90vh] w-full'>
               <div className='w-full max-w-4xl mx-auto space-y-6'>
                 {/* Welcome Message and Categories */}
-                {(allChats?.data?.length ?? 0) === 0 &&
-                  messages.length === 0 && (
+                {allChats?.data?.length === undefined ||
+                  (allChats?.data?.length === 0 && (
                     <div className='text-center space-y-8'>
                       <h1 className='text-2xl md:text-4xl font-bold text-white mb-8'>
                         Hello! Ask Me About Global Football Vault.
@@ -618,7 +556,7 @@ export default function ChatbotSectionContent() {
                         ))}
                       </div>
                     </div>
-                  )}
+                  ))}
 
                 {messages.map((chat) => (
                   <div

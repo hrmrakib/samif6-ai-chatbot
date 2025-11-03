@@ -223,6 +223,8 @@ export default function ChatbotSection() {
     </div>
   );
 
+  console.log("this page is ready .............");
+
   return (
     <section className='max-h-[99vh] container mx-auto  bg-gradient-to-br from-[#000000] via-[#000000] to-[#0000004c] rounded-3xl shadow-black/20 shadow-lg relative overflow-hidden cursor-default'>
       <div className='flex h-screen'>
@@ -259,7 +261,7 @@ export default function ChatbotSection() {
             <div className='flex items-center justify-center min-h-[90vh] w-full'>
               <div className='max-w-4xl mx-auto space-y-6'>
                 {/* Welcome Message and Categories */}
-                {messages.length === 1 && (
+                {messages.length === 0 && (
                   <div className='text-center space-y-8'>
                     <h1 className='text-2xl md:text-4xl font-bold text-white mb-8'>
                       Hello! Ask Me About Global Football Vault.
