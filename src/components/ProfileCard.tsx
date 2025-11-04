@@ -12,15 +12,19 @@ import {
   useUpdateProfileMutation,
 } from "@/redux/features/profile/profileAPI";
 
-interface UserProfile {
+export interface UserProfile {
+  id?: number;
   full_name: string;
-  age?: number;
   email: string;
-  profile_pic?: string;
-  mobile_no?: string;
-  club_name?: string;
-  playing_level?: string;
-  location?: string;
+  age?: number;
+  club?: string | null;
+  playing_level?: string | null;
+  location?: string | null;
+  mobile_no?: string | null;
+  profile_pic?: string | null;
+  subscribed_plan_status?: {
+    plan__name: string;
+  } | null;
 }
 
 export default function ProfileCard() {
@@ -31,7 +35,7 @@ export default function ProfileCard() {
     email: "",
     profile_pic: "/profile.jpg",
     mobile_no: "",
-    club_name: "",
+    club: "",
     playing_level: "",
     location: "",
   });
@@ -42,6 +46,8 @@ export default function ProfileCard() {
   const { data: user } = useGetProfileQuery({});
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [updateProfileMutation] = useUpdateProfileMutation();
+
+  console.log({ user });
 
   useEffect(() => {
     if (user) {
@@ -72,7 +78,7 @@ export default function ProfileCard() {
       }
       formData.append("mobile_no", editedProfile.mobile_no || "");
       formData.append("age", editedProfile.age?.toString() || "");
-      formData.append("club_name", editedProfile.club_name || "");
+      formData.append("club_name", editedProfile.club || "");
       formData.append("playing_level", editedProfile.playing_level || "");
       formData.append("location", editedProfile.location || "");
 
@@ -162,7 +168,9 @@ export default function ProfileCard() {
                     <span className='text-sm'>Member since 2024</span>
                   </div>
                   <div className='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800'>
-                    Premium Member
+                    {profile?.subscribed_plan_status?.plan__name
+                      ? profile?.subscribed_plan_status?.plan__name
+                      : "Free"}
                   </div>
                 </div>
               )}
@@ -201,12 +209,12 @@ export default function ProfileCard() {
                     </div>
                   )}
 
-                  {profile?.club_name && (
+                  {profile?.club && (
                     <div>
                       <Label className='text-gray-600 text-sm font-medium'>
                         Club Name:
                       </Label>
-                      <p className='text-gray-700 mt-1'>{profile?.club_name}</p>
+                      <p className='text-gray-700 mt-1'>{profile?.club}</p>
                     </div>
                   )}
 
@@ -311,9 +319,9 @@ export default function ProfileCard() {
                     </Label>
                     <Input
                       id='club_name'
-                      value={editedProfile.club_name || ""}
+                      value={editedProfile.club || ""}
                       onChange={(e) =>
-                        handleInputChange("club_name", e.target.value)
+                        handleInputChange("club", e.target.value)
                       }
                       className='mt-1'
                       placeholder='Enter your Club Name'

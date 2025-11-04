@@ -317,9 +317,6 @@ export default function ChatbotSectionContent() {
         session_id: sessionId,
       }).unwrap();
 
-      console.log(sessionId);
-      console.log({ res });
-
       if (res?.success) {
         sessionRefetch();
       }
