@@ -115,14 +115,6 @@ export default function ChatbotSectionContent() {
 
   const { today, yesterday, last_week, last_month, last_year } =
     allSessions ?? {};
-  console.log(
-    "allSessions:: ",
-    today,
-    yesterday,
-    last_week,
-    last_month,
-    last_year
-  );
 
   useEffect(() => {
     if (!currentSessionId) return;
@@ -157,9 +149,9 @@ export default function ChatbotSectionContent() {
     });
   }, [allChats?.data, currentSessionId]);
 
-  useEffect(() => {
-    setMessages([]);
-  }, [currentSessionId]);
+  // useEffect(() => {
+  //   setMessages([]);
+  // }, [currentSessionId]);
 
   useEffect(() => {
     if (textAreaRef.current) {
@@ -278,66 +270,6 @@ export default function ChatbotSectionContent() {
     }
   };
 
-  // const handleSendMessage = async () => {
-  //   setInputTitleTemp(inputValue);
-  //   if (!inputValue.trim() || isLoading) return;
-
-  //   setIsLoading(true);
-
-  //   if (!currentSessionId) {
-  //     await makeSession();
-  //   }
-
-  //   const userMsg: Message = {
-  //     response_id: "",
-  //     query_text: inputValue,
-  //     response_text: "",
-  //   };
-
-  //   setMessages((prev) => [...prev, userMsg]);
-
-  //   const msg = {
-  //     session_id: currentSessionId,
-  //     email: email,
-  //     query_text: inputValue,
-  //   };
-  //   setInputValue("");
-
-  //   try {
-  //     if (!email) {
-  //       toast.warning("Please login to continue");
-  //       router.push("/login");
-  //     }
-  //     const aiResponse = await createChatMutation(msg).unwrap();
-
-  //     console.log("aiResponse inside handleSendMessage:", aiResponse);
-
-  //     if (aiResponse?.session_id) {
-  //       const aiMessage: Message = {
-  //         response_id: aiResponse?.data?.response_id,
-  //         query_text: inputValue,
-  //         response_text: aiResponse?.data?.response_text,
-  //       };
-
-  //       setMessages((prev) => [...prev, aiMessage]);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error getting AI response:", error);
-  //     const errorMessage: Message = {
-  //       response_id: "error",
-  //       query_text: inputValue,
-  //       response_text:
-  //         "Sorry, I'm having trouble responding right now. Please try again.",
-  //     };
-
-  //     setMessages((prev) => [...prev, errorMessage]);
-  //   } finally {
-  //     setIsLoading(false);
-  //     scrollToBottom();
-  //     setInputTitleTemp("");
-  //   }
-  // };
-
   const handleCategoryClick = (category: (typeof aiCategories)[0]) => {
     const categoryMessage = `Tell me about ${category.label.toLowerCase()}`;
     setInputValue(categoryMessage);
@@ -364,6 +296,7 @@ export default function ChatbotSectionContent() {
     scrollToBottom();
     setIsSidebarOpen(false);
     setOpen(false);
+    refetchChats();
   };
 
   const handleChatSelect = (chatId: string) => {
