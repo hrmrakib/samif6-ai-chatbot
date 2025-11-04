@@ -4,9 +4,8 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "http",
-        hostname: "10.10.12.111",
-        port: "8002",
+        protocol: "https",
+        hostname: "api.globalfootballvault.com",
         pathname: "/**",
       },
     ],

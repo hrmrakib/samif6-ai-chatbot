@@ -113,6 +113,17 @@ export default function ChatbotSectionContent() {
     skip: !email,
   });
 
+  const { today, yesterday, last_week, last_month, last_year } =
+    allSessions ?? {};
+  console.log(
+    "allSessions:: ",
+    today,
+    yesterday,
+    last_week,
+    last_month,
+    last_year
+  );
+
   useEffect(() => {
     if (!currentSessionId) return;
 
@@ -206,7 +217,7 @@ export default function ChatbotSectionContent() {
       setOpen(false);
     }
   };
-  
+
   const handleSendMessage = async () => {
     const userInput = inputValue.trim();
 
@@ -462,15 +473,15 @@ export default function ChatbotSectionContent() {
             {sessionLoading && <p>loading ....</p>}
           </div>
 
-          {allSessions?.today &&
+          {today?.length > 0 &&
             renderSessionSection("Today", allSessions?.today)}
-          {allSessions?.yesterday &&
+          {yesterday?.length > 0 &&
             renderSessionSection("Yesterday", allSessions?.yesterday)}
-          {allSessions?.last_week &&
+          {last_week?.length > 0 &&
             renderSessionSection("Last Week", allSessions?.last_week)}
-          {allSessions?.last_month &&
+          {last_month?.length > 0 &&
             renderSessionSection("Last Month", allSessions?.last_month)}
-          {allSessions?.last_year &&
+          {last_year?.length > 0 &&
             renderSessionSection("Last Year", allSessions?.last_year)}
         </div>
       </ScrollArea>
