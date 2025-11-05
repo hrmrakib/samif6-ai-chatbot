@@ -77,7 +77,6 @@ export default function ChatbotSectionContent() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id");
   const [messages, setMessages] = useState<Message[]>([]);
   const [search, setSearch] = useState<string>("");
   const [inputValue, setInputValue] = useState("");
@@ -94,6 +93,7 @@ export default function ChatbotSectionContent() {
     { q: search, email },
     { skip: !search }
   );
+  const sessionId = searchParams.get("session_id");
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(
     sessionId
   );
@@ -106,7 +106,6 @@ export default function ChatbotSectionContent() {
       skip: !currentSessionId,
     }
   );
-
   const {
     data: allSessions,
     isLoading: sessionLoading,
@@ -114,6 +113,8 @@ export default function ChatbotSectionContent() {
   } = useGetAiChatSessionQuery(email, {
     skip: !email,
   });
+
+  console.log("..............", currentSessionId);
 
   const { today, yesterday, last_week, last_month, last_year } =
     allSessions ?? {};
@@ -204,14 +205,19 @@ export default function ChatbotSectionContent() {
       router.push("/#membership");
       return;
     }
+    // if (currentSessionId) {
+    //   return;
+    // }
 
     try {
       const res = await createSessionMutation({ email }).unwrap();
+
       if (res?.session_id) {
         setCurrentSessionId(res.session_id);
         const url = new URL(window.location.href);
         url.searchParams.set("session_id", res?.session_id);
         window.history.replaceState(null, "", url.toString());
+        sessionRefetch();
       }
     } catch (error: any) {
       console.error("Error creating session:", error);
@@ -314,6 +320,8 @@ export default function ChatbotSectionContent() {
       email: email,
       query_text: userInput,
     };
+
+    console.log({ msg });
 
     setInputValue(""); // Clear the input field after sending
 
