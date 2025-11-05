@@ -36,6 +36,7 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FadeLoader } from "react-spinners";
 import { toast } from "sonner";
+import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
 
 type ChatItem = {
   id: string;
@@ -79,7 +80,6 @@ export default function ChatbotSectionContent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [search, setSearch] = useState<string>("");
   const [inputValue, setInputValue] = useState("");
-  const [inputTitleTemp, setInputTitleTemp] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [sessionDeleteId, setSessionDeleteId] = useState<string | null>(null);
@@ -97,6 +97,7 @@ export default function ChatbotSectionContent() {
     sessionId
   );
   const router = useRouter();
+  const { data: user } = useGetProfileQuery({});
 
   const { data: allChats, refetch: refetchChats } = useGetAiChatBySessionQuery(
     currentSessionId,
@@ -149,10 +150,6 @@ export default function ChatbotSectionContent() {
     });
   }, [allChats?.data, currentSessionId]);
 
-  // useEffect(() => {
-  //   setMessages([]);
-  // }, [currentSessionId]);
-
   useEffect(() => {
     if (textAreaRef.current) {
       textAreaRef.current.style.height = "auto";
@@ -181,11 +178,15 @@ export default function ChatbotSectionContent() {
   }, []);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   const makeSession = async () => {
@@ -193,6 +194,16 @@ export default function ChatbotSectionContent() {
       toast.warning("Please login to continue");
       router.push("/login");
     }
+
+    if (
+      user?.subscribed_plan_status === null ||
+      user?.subscribed_plan_status?.plan__name === "free"
+    ) {
+      toast.warning("Please upgrade your plan to continue");
+      router.push("/#membership");
+      return;
+    }
+
     try {
       const res = await createSessionMutation({ email }).unwrap();
       if (res?.session_id) {
@@ -210,8 +221,16 @@ export default function ChatbotSectionContent() {
     }
   };
 
-  const handleSendMessage = async () => {
+  const handleSendMessagePrev = async () => {
     const userInput = inputValue.trim();
+    if (
+      user?.subscribed_plan_status === null ||
+      user?.subscribed_plan_status?.plan__name === "Free"
+    ) {
+      toast.warning("Please upgrade your plan to continue");
+      router.push("/#membership");
+      return;
+    }
 
     if (!userInput || isLoading) return;
     setIsLoading(true);
@@ -270,6 +289,65 @@ export default function ChatbotSectionContent() {
     }
   };
 
+  const handleSendMessage = async () => {
+    const userInput = inputValue.trim();
+    if (!userInput || isLoading) return;
+
+    setIsLoading(true);
+
+    if (!currentSessionId) {
+      await makeSession(); // If there's no current session, create a new one.
+    }
+
+    const userMsg: Message = {
+      response_id: "",
+      query_text: userInput,
+      response_text: "", // Initially no response
+    };
+
+    // Append the user's message to the state (ensure UI re-renders)
+    setMessages((prevMessages) => [...prevMessages, userMsg]);
+
+    const msg = {
+      session_id: currentSessionId,
+      email: email,
+      query_text: userInput,
+    };
+
+    setInputValue(""); // Clear the input field after sending
+
+    try {
+      const aiResponse = await createChatMutation(msg).unwrap();
+
+      if (aiResponse?.data) {
+        const aiMessage: Message = {
+          response_id: aiResponse.data.response_id,
+          query_text: userInput,
+          response_text: aiResponse.data.response_text,
+        };
+
+        // Append the AI's response to the messages
+        setMessages((prevMessages) => [...prevMessages, aiMessage]);
+
+        refetchChats(); // Refetch chats to ensure we have the latest data
+        sessionRefetch();
+      }
+    } catch (error) {
+      const errorMessage: Message = {
+        response_id: "error",
+        query_text: userInput,
+        response_text:
+          "Sorry, I'm having trouble responding right now. Please try again.",
+      };
+
+      // Append the error message
+      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCategoryClick = (category: (typeof aiCategories)[0]) => {
     const categoryMessage = `Tell me about ${category.label.toLowerCase()}`;
     setInputValue(categoryMessage);
@@ -286,6 +364,7 @@ export default function ChatbotSectionContent() {
     makeSession();
     setIsSidebarOpen(false);
     scrollToBottom();
+    setMessages([]);
   };
 
   const handleSelectSession = async (sessionId: string) => {
@@ -626,9 +705,9 @@ export default function ChatbotSectionContent() {
                   </div>
                 ))}
 
-                <h3 className='text-lg font-medium text-gray-300 mb-2'>
+                {/* <h3 className='text-lg font-medium text-gray-300 mb-2'>
                   {inputTitleTemp && "🙋🏻‍♂️ " + inputTitleTemp}
-                </h3>
+                </h3> */}
 
                 {/* Loading Indicator */}
                 {isLoading ? (

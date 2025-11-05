@@ -47,7 +47,7 @@ export default function ProfileCard() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [updateProfileMutation] = useUpdateProfileMutation();
 
-  console.log({ user });
+  console.log(user?.subscribed_plan_status);
 
   useEffect(() => {
     if (user) {
