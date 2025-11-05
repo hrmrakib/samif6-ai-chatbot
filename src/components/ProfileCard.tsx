@@ -101,9 +101,19 @@ export default function ProfileCard() {
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+
     if (file) {
+      // Check the file size (in bytes). 2MB = 2 * 1024 * 1024 bytes
+      if (file.size > 2 * 1024 * 1024) {
+        alert(
+          "The file size exceeds the 2MB limit. Please upload a smaller image."
+        );
+        return; // Stop the upload process
+      }
+
       setSelectedFile(file);
       setImagePreview(URL.createObjectURL(file));
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setEditedProfile((prev) => ({

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-children-prop */
 
@@ -221,7 +222,7 @@ export default function ChatbotSectionContent() {
     }
   };
 
-  const handleSendMessagePrev = async () => {
+  const handleSendMessage2 = async () => {
     const userInput = inputValue.trim();
     if (
       user?.subscribed_plan_status === null ||
