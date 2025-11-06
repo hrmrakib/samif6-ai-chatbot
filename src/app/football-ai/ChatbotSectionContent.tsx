@@ -99,7 +99,7 @@ export default function ChatbotSectionContent() {
   );
   const router = useRouter();
   const { data: user } = useGetProfileQuery({});
-
+  console.log(user?.email);
   const { data: allChats, refetch: refetchChats } = useGetAiChatBySessionQuery(
     currentSessionId,
     {
@@ -114,10 +114,18 @@ export default function ChatbotSectionContent() {
     skip: !email,
   });
 
-  console.log("..............", currentSessionId);
+  console.log("outside => ", currentSessionId);
 
   const { today, yesterday, last_week, last_month, last_year } =
     allSessions ?? {};
+
+  useEffect(() => {
+    const storedData = localStorage.getItem("samif6_user");
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      setEmail(parsedData.email);
+    }
+  }, []);
 
   useEffect(() => {
     if (!currentSessionId) return;
@@ -160,14 +168,6 @@ export default function ChatbotSectionContent() {
   }, [inputValue]);
 
   useEffect(() => {
-    const storedData = localStorage.getItem("samif6_user");
-    if (storedData) {
-      const parsedData = JSON.parse(storedData);
-      setEmail(parsedData.email);
-    }
-  }, []);
-
-  useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -205,9 +205,10 @@ export default function ChatbotSectionContent() {
       router.push("/#membership");
       return;
     }
-    // if (currentSessionId) {
-    //   return;
-    // }
+
+    if (currentSessionId) {
+      return;
+    }
 
     try {
       const res = await createSessionMutation({ email }).unwrap();
@@ -228,23 +229,12 @@ export default function ChatbotSectionContent() {
     }
   };
 
-  const handleSendMessage2 = async () => {
+  const handleSendMessage = async () => {
     const userInput = inputValue.trim();
-    if (
-      user?.subscribed_plan_status === null ||
-      user?.subscribed_plan_status?.plan__name === "Free"
-    ) {
-      toast.warning("Please upgrade your plan to continue");
-      router.push("/#membership");
-      return;
-    }
 
     if (!userInput || isLoading) return;
-    setIsLoading(true);
 
-    if (!currentSessionId) {
-      await makeSession();
-    }
+    setIsLoading(true);
 
     const userMsg: Message = {
       response_id: "",
@@ -252,7 +242,11 @@ export default function ChatbotSectionContent() {
       response_text: "",
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    setMessages((prevMessages) => [...prevMessages, userMsg]);
+
+    if (!currentSessionId) {
+      await makeSession();
+    }
 
     const msg = {
       session_id: currentSessionId,
@@ -263,11 +257,7 @@ export default function ChatbotSectionContent() {
     setInputValue("");
 
     try {
-      if (!email) {
-        toast.warning("Please login to continue");
-        router.push("/login");
-        return;
-      }
+      console.log("handleSendMessageFunction => ", currentSessionId);
 
       const aiResponse = await createChatMutation(msg).unwrap();
 
@@ -277,68 +267,10 @@ export default function ChatbotSectionContent() {
           query_text: userInput,
           response_text: aiResponse.data.response_text,
         };
-        setMessages((prev) => [...prev, aiMessage]);
-        refetchChats();
-        sessionRefetch();
-      }
-    } catch (error) {
-      console.error("Error getting AI response:", error);
-      const errorMessage: Message = {
-        response_id: "error",
-        query_text: userInput,
-        response_text:
-          "Sorry, I'm having trouble responding right now. Please try again.",
-      };
-      setMessages((prev) => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-      scrollToBottom();
-    }
-  };
 
-  const handleSendMessage = async () => {
-    const userInput = inputValue.trim();
-    if (!userInput || isLoading) return;
-
-    setIsLoading(true);
-
-    if (!currentSessionId) {
-      await makeSession(); // If there's no current session, create a new one.
-    }
-
-    const userMsg: Message = {
-      response_id: "",
-      query_text: userInput,
-      response_text: "", // Initially no response
-    };
-
-    // Append the user's message to the state (ensure UI re-renders)
-    setMessages((prevMessages) => [...prevMessages, userMsg]);
-
-    const msg = {
-      session_id: currentSessionId,
-      email: email,
-      query_text: userInput,
-    };
-
-    console.log({ msg });
-
-    setInputValue(""); // Clear the input field after sending
-
-    try {
-      const aiResponse = await createChatMutation(msg).unwrap();
-
-      if (aiResponse?.data) {
-        const aiMessage: Message = {
-          response_id: aiResponse.data.response_id,
-          query_text: userInput,
-          response_text: aiResponse.data.response_text,
-        };
-
-        // Append the AI's response to the messages
         setMessages((prevMessages) => [...prevMessages, aiMessage]);
 
-        refetchChats(); // Refetch chats to ensure we have the latest data
+        refetchChats();
         sessionRefetch();
       }
     } catch (error) {
@@ -351,9 +283,9 @@ export default function ChatbotSectionContent() {
 
       // Append the error message
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
-      console.log(error);
+      console.error("Error in handleSendMessage:", error);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Stop loading
     }
   };
 
