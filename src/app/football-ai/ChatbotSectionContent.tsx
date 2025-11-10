@@ -306,69 +306,6 @@ export default function ChatbotSectionContent() {
     }
   };
 
-  // const handleSendMessage = async () => {
-  //   console.log("call handleSendMessage...................");
-  //   const userInput = inputValue.trim();
-
-  //   if (!userInput || isLoading) return;
-
-  //   setIsLoading(true);
-
-  //   const userMsg: Message = {
-  //     response_id: "",
-  //     query_text: userInput,
-  //     response_text: "",
-  //   };
-
-  //   setMessages((prevMessages) => [...prevMessages, userMsg]);
-
-  //   if (!currentSessionId) {
-  //     await makeSession();
-  //   }
-
-  //   const msg = {
-  //     session_id: currentSessionId,
-  //     email: email,
-  //     query_text: userInput,
-  //   };
-
-  //   setInputValue("");
-
-  //   try {
-  //     let aiResponse;
-
-  //     if (!currentSessionId) {
-  //       aiResponse = await createChatMutation(msg).unwrap();
-  //     }
-
-  //     if (aiResponse?.data) {
-  //       const aiMessage: Message = {
-  //         response_id: aiResponse.data.response_id,
-  //         query_text: userInput,
-  //         response_text: aiResponse.data.response_text,
-  //       };
-
-  //       setMessages((prevMessages) => [...prevMessages, aiMessage]);
-
-  //       refetchChats();
-  //       sessionRefetch();
-  //     }
-  //   } catch (error) {
-  //     const errorMessage: Message = {
-  //       response_id: "error",
-  //       query_text: userInput,
-  //       response_text:
-  //         "Sorry, I'm having trouble responding right now. Please try again.",
-  //     };
-
-  //     // Append the error message
-  //     setMessages((prevMessages) => [...prevMessages, errorMessage]);
-  //     console.error("Error in handleSendMessage:", error);
-  //   } finally {
-  //     setIsLoading(false); // Stop loading
-  //   }
-  // };
-
   const handleCategoryClick = (category: (typeof aiCategories)[0]) => {
     const categoryMessage = `Tell me about ${category.label.toLowerCase()}`;
     setInputValue(categoryMessage);
@@ -381,12 +318,52 @@ export default function ChatbotSectionContent() {
     }
   };
 
+  // const startNewChat = async () => {
+  //   console.log("click new chat start");
+  //   await makeSession();
+  //   setIsSidebarOpen(false);
+  //   scrollToBottom();
+  //   setMessages([]);
+  // };
+
   const startNewChat = async () => {
-    console.log("click new chat start");
-    await makeSession();
-    setIsSidebarOpen(false);
-    scrollToBottom();
+    console.log("🆕 Starting a new chat...");
+
+    // Clear current messages immediately for instant UX feedback
     setMessages([]);
+
+    // Reset current session ID before creating a new one
+    setCurrentSessionId(null);
+
+    try {
+      // Create a brand new session
+      const newSessionId = await createSessionMutation({ email }).unwrap();
+
+      if (newSessionId?.session_id) {
+        const session_id = newSessionId.session_id;
+
+        // Update state and URL
+        setCurrentSessionId(session_id);
+        const url = new URL(window.location.href);
+        url.searchParams.set("session_id", session_id);
+        window.history.replaceState(null, "", url.toString());
+
+        // Refetch sessions list to update sidebar
+        await sessionRefetch();
+
+        toast.success("Started a new chat session 🎉");
+      } else {
+        toast.error("Failed to create new chat session.");
+      }
+    } catch (error: any) {
+      console.error("Error creating new chat:", error);
+      toast.error(error?.data?.message || "Unable to start new chat");
+    } finally {
+      // Close sidebar and scroll down
+      setIsSidebarOpen(false);
+      setOpen(false);
+      scrollToBottom();
+    }
   };
 
   const handleSelectSession = async (sessionId: string) => {
@@ -577,7 +554,7 @@ export default function ChatbotSectionContent() {
                       <button
                         type='button'
                         disabled={isCreatingSessionLoading}
-                        onClick={() => makeSession()}
+                        onClick={() => startNewChat()}
                         className='my-2 w-full h-11 flex items-center justify-center rounded-lg bg-neutral-800/70 hover:bg-neutral-200 text-neutral-100 hover:text-gray-900 disabled:cursor-wait'
                       >
                         + New chat
