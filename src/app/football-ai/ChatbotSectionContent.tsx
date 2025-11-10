@@ -257,22 +257,19 @@ export default function ChatbotSectionContent() {
       response_text: "",
     };
 
-    // Immediately show user message
     setMessages((prevMessages) => [...prevMessages, userMsg]);
     setInputValue("");
 
     try {
-      // ✅ Make sure session exists before sending chat
       let activeSessionId = currentSessionId;
       if (!activeSessionId) {
-        activeSessionId = await makeSession(); // Wait for session creation
+        activeSessionId = await makeSession();
         if (!activeSessionId) {
           setIsLoading(false);
           return;
         }
       }
 
-      // ✅ Now safely send chat request
       const msg = {
         session_id: activeSessionId,
         email: email,
