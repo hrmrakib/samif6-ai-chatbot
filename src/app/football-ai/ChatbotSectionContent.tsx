@@ -6,7 +6,7 @@
 
 import type React from "react";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 import { Search, Menu, ArrowRight, SquarePen, Trash, User } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -127,6 +127,14 @@ export default function ChatbotSectionContent() {
     }
   }, []);
 
+  useLayoutEffect(() => {
+    if (currentSessionId) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("session_id", currentSessionId);
+      window.history.replaceState(null, "", url.toString());
+    }
+  }, [currentSessionId]);
+
   useEffect(() => {
     if (!currentSessionId) return;
 
@@ -191,10 +199,11 @@ export default function ChatbotSectionContent() {
     }
   }, [messages]);
 
-  const makeSession = async () => {
+  const makeSession = async (): Promise<string | null> => {
     if (!email) {
       toast.warning("Please login to continue");
       router.push("/login");
+      return null;
     }
 
     if (
@@ -203,33 +212,39 @@ export default function ChatbotSectionContent() {
     ) {
       toast.warning("Please upgrade your plan to continue");
       router.push("/#membership");
-      return;
+      return null;
     }
 
+    // If a session already exists, just return it
     if (currentSessionId) {
-      return;
+      return currentSessionId;
     }
 
     try {
       const res = await createSessionMutation({ email }).unwrap();
 
       if (res?.session_id) {
-        setCurrentSessionId(res.session_id);
+        const newSessionId = res.session_id;
         const url = new URL(window.location.href);
-        url.searchParams.set("session_id", res?.session_id);
+        url.searchParams.set("session_id", newSessionId);
         window.history.replaceState(null, "", url.toString());
-        sessionRefetch();
+        setCurrentSessionId(newSessionId);
+        await sessionRefetch();
+        return newSessionId;
       }
     } catch (error: any) {
       console.error("Error creating session:", error);
-      console.log("err", error?.data);
+      toast.error(error?.data?.message || "Failed to create session.");
     } finally {
       setIsSidebarOpen(false);
       setOpen(false);
     }
+
+    return null;
   };
 
   const handleSendMessage = async () => {
+    console.log("call handleSendMessage...................");
     const userInput = inputValue.trim();
 
     if (!userInput || isLoading) return;
@@ -242,22 +257,27 @@ export default function ChatbotSectionContent() {
       response_text: "",
     };
 
+    // Immediately show user message
     setMessages((prevMessages) => [...prevMessages, userMsg]);
-
-    if (!currentSessionId) {
-      await makeSession();
-    }
-
-    const msg = {
-      session_id: currentSessionId,
-      email: email,
-      query_text: userInput,
-    };
-
     setInputValue("");
 
     try {
-      console.log("handleSendMessageFunction => ", currentSessionId);
+      // ✅ Make sure session exists before sending chat
+      let activeSessionId = currentSessionId;
+      if (!activeSessionId) {
+        activeSessionId = await makeSession(); // Wait for session creation
+        if (!activeSessionId) {
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // ✅ Now safely send chat request
+      const msg = {
+        session_id: activeSessionId,
+        email: email,
+        query_text: userInput,
+      };
 
       const aiResponse = await createChatMutation(msg).unwrap();
 
@@ -269,25 +289,85 @@ export default function ChatbotSectionContent() {
         };
 
         setMessages((prevMessages) => [...prevMessages, aiMessage]);
-
-        refetchChats();
-        sessionRefetch();
+        await refetchChats();
+        await sessionRefetch();
       }
     } catch (error) {
+      console.error("Error in handleSendMessage:", error);
       const errorMessage: Message = {
         response_id: "error",
         query_text: userInput,
         response_text:
           "Sorry, I'm having trouble responding right now. Please try again.",
       };
-
-      // Append the error message
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
-      console.error("Error in handleSendMessage:", error);
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
     }
   };
+
+  // const handleSendMessage = async () => {
+  //   console.log("call handleSendMessage...................");
+  //   const userInput = inputValue.trim();
+
+  //   if (!userInput || isLoading) return;
+
+  //   setIsLoading(true);
+
+  //   const userMsg: Message = {
+  //     response_id: "",
+  //     query_text: userInput,
+  //     response_text: "",
+  //   };
+
+  //   setMessages((prevMessages) => [...prevMessages, userMsg]);
+
+  //   if (!currentSessionId) {
+  //     await makeSession();
+  //   }
+
+  //   const msg = {
+  //     session_id: currentSessionId,
+  //     email: email,
+  //     query_text: userInput,
+  //   };
+
+  //   setInputValue("");
+
+  //   try {
+  //     let aiResponse;
+
+  //     if (!currentSessionId) {
+  //       aiResponse = await createChatMutation(msg).unwrap();
+  //     }
+
+  //     if (aiResponse?.data) {
+  //       const aiMessage: Message = {
+  //         response_id: aiResponse.data.response_id,
+  //         query_text: userInput,
+  //         response_text: aiResponse.data.response_text,
+  //       };
+
+  //       setMessages((prevMessages) => [...prevMessages, aiMessage]);
+
+  //       refetchChats();
+  //       sessionRefetch();
+  //     }
+  //   } catch (error) {
+  //     const errorMessage: Message = {
+  //       response_id: "error",
+  //       query_text: userInput,
+  //       response_text:
+  //         "Sorry, I'm having trouble responding right now. Please try again.",
+  //     };
+
+  //     // Append the error message
+  //     setMessages((prevMessages) => [...prevMessages, errorMessage]);
+  //     console.error("Error in handleSendMessage:", error);
+  //   } finally {
+  //     setIsLoading(false); // Stop loading
+  //   }
+  // };
 
   const handleCategoryClick = (category: (typeof aiCategories)[0]) => {
     const categoryMessage = `Tell me about ${category.label.toLowerCase()}`;
@@ -301,8 +381,9 @@ export default function ChatbotSectionContent() {
     }
   };
 
-  const startNewChat = () => {
-    makeSession();
+  const startNewChat = async () => {
+    console.log("click new chat start");
+    await makeSession();
     setIsSidebarOpen(false);
     scrollToBottom();
     setMessages([]);
@@ -437,6 +518,10 @@ export default function ChatbotSectionContent() {
       </ScrollArea>
     </div>
   );
+
+  // test console    ----------------------------------------------------------
+
+  console.log("currentSessionId = ", currentSessionId);
 
   return (
     <section className='max-h-screen bg-gradient-to-br from-[#000000] via-[#000000] to-[#0000004c] shadow-black/20  relative overflow-hidden'>
