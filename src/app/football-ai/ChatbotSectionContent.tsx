@@ -215,7 +215,6 @@ export default function ChatbotSectionContent() {
       return null;
     }
 
-    // If a session already exists, just return it
     if (currentSessionId) {
       return currentSessionId;
     }
@@ -244,7 +243,6 @@ export default function ChatbotSectionContent() {
   };
 
   const handleSendMessage = async () => {
-    console.log("call handleSendMessage...................");
     const userInput = inputValue.trim();
 
     if (!userInput || isLoading) return;
