@@ -114,8 +114,6 @@ export default function ChatbotSectionContent() {
     skip: !email,
   });
 
-  console.log("outside => ", currentSessionId);
-
   const { today, yesterday, last_week, last_month, last_year } =
     allSessions ?? {};
 
@@ -260,6 +258,7 @@ export default function ChatbotSectionContent() {
 
     try {
       let activeSessionId = currentSessionId;
+
       if (!activeSessionId) {
         activeSessionId = await makeSession();
         if (!activeSessionId) {
@@ -312,14 +311,6 @@ export default function ChatbotSectionContent() {
       handleSendMessage();
     }
   };
-
-  // const startNewChat = async () => {
-  //   console.log("click new chat start");
-  //   await makeSession();
-  //   setIsSidebarOpen(false);
-  //   scrollToBottom();
-  //   setMessages([]);
-  // };
 
   const startNewChat = async () => {
     console.log("🆕 Starting a new chat...");
@@ -664,32 +655,32 @@ export default function ChatbotSectionContent() {
                                 remarkPlugins={[remarkGfm]}
                                 components={{
                                   ul: ({ children }) => (
-                                    <ul className='list-disc pl-6 text-sm text-gray-200'>
+                                    <ul className='list-disc pl-6 text-sm text-gray-200 text-wrap'>
                                       {children}
                                     </ul>
                                   ),
                                   ol: ({ children }) => (
-                                    <ol className='list-decimal pl-6 text-sm text-gray-200'>
+                                    <ol className='list-decimal pl-6 text-sm text-gray-200 text-wrap'>
                                       {children}
                                     </ol>
                                   ),
                                   li: ({ children }) => (
-                                    <li className='py-1 text-lg text-gray-200'>
+                                    <li className='py-1 text-lg text-gray-200 text-wrap'>
                                       {children}
                                     </li>
                                   ),
                                   p: ({ children }) => (
-                                    <p className='text-base text-gray-200 mb-2'>
+                                    <p className='text-base text-gray-200 mb-2 text-wrap'>
                                       {children}
                                     </p>
                                   ),
                                   strong: ({ children }) => (
-                                    <strong className='text-white text-lg'>
+                                    <strong className='text-white text-lg text-wrap'>
                                       {children}
                                     </strong>
                                   ),
                                   em: ({ children }) => (
-                                    <em className='italic text-yellow-300 text-lg'>
+                                    <em className='italic text-yellow-300 text-lg text-wrap'>
                                       {children}
                                     </em>
                                   ),
