@@ -99,7 +99,6 @@ export default function ChatbotSectionContent() {
   );
   const router = useRouter();
   const { data: user } = useGetProfileQuery({});
-  console.log(user?.email);
   const { data: allChats, refetch: refetchChats } = useGetAiChatBySessionQuery(
     currentSessionId,
     {
@@ -313,8 +312,6 @@ export default function ChatbotSectionContent() {
   };
 
   const startNewChat = async () => {
-    console.log("🆕 Starting a new chat...");
-
     // Clear current messages immediately for instant UX feedback
     setMessages([]);
 
@@ -353,9 +350,6 @@ export default function ChatbotSectionContent() {
   };
 
   const handleSelectSession = async (sessionId: string) => {
-    console.log(
-      { sessionId, currentSessionId: currentSessionId } + "handleSelectSession"
-    );
     setCurrentSessionId(sessionId);
     scrollToBottom();
     setIsSidebarOpen(false);
@@ -481,10 +475,6 @@ export default function ChatbotSectionContent() {
       </ScrollArea>
     </div>
   );
-
-  // test console    ----------------------------------------------------------
-
-  console.log("currentSessionId = ", currentSessionId);
 
   return (
     <section className='max-h-screen bg-gradient-to-br from-[#000000] via-[#000000] to-[#0000004c] shadow-black/20  relative overflow-hidden'>

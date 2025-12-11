@@ -142,7 +142,6 @@ export default function ProductsSection() {
 
   const addToCart = (productId: string) => {
     setCart((prev) => [...prev, productId]);
-    console.log(`Product ${productId} added to cart`);
     // You can add toast notification here
   };
 
@@ -201,7 +200,7 @@ export default function ProductsSection() {
                     <Link
                       href={`/product/${product.id}`}
                       onClick={() => viewProduct(product.id)}
-                      className='bg-white/90 hover:bg-white text-gray-900 p-2 rounded-full flex items-center justify-center transition-colors duration-300' 
+                      className='bg-white/90 hover:bg-white text-gray-900 p-2 rounded-full flex items-center justify-center transition-colors duration-300'
                     >
                       <Eye className='w-6 h-6' />
                     </Link>

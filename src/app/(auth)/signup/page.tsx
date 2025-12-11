@@ -114,15 +114,11 @@ export default function SignUpPage() {
 
       const res = await signup(data).unwrap();
 
-      // console.log(res);
-
       if (res?.access_token) {
         toast.success(res?.message);
         localStorage.setItem("access_token", res?.access_token);
         router.push("/verify-otp" + "?email=" + formData.email);
       }
-
-      console.log({ res });
     } catch (error) {
       if (
         typeof error === "object" &&

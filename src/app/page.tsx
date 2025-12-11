@@ -9,18 +9,12 @@ import HeroSection from "@/components/Hero";
 import HowItWorksSection from "@/components/HowItsWork";
 import MembershipSection from "@/components/MembershipSection";
 import { setCurrentUser } from "@/redux/features/auth/userSlice";
-import { useGetProfileQuery } from "@/redux/features/profile/profileAPI";
-import { RootState } from "@/redux/store/store";
 // import ProductsSection from "@/components/ProductSection";
 import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 const HomePage = () => {
-  const currentUser = useSelector((state: RootState) => state.user.user);
-  console.log({ currentUser });
   const dispatch = useDispatch();
-  const { data } = useGetProfileQuery({});
-  console.log("user data", data?.data);
 
   useEffect(() => {
     const user = localStorage.getItem("samif6_user");

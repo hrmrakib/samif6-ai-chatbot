@@ -44,7 +44,6 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
   const pathname = usePathname();
   const handleSocialClick = (platform: string, url: string) => {
-    console.log(`Opening ${platform}: ${url}`);
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
@@ -62,9 +61,7 @@ export default function Footer() {
 
   return (
     <footer className='bg-black text-white py-16 lg:pt-20 lg:pb-10'>
-      <div>
-        
-      </div>
+      <div></div>
 
       <div className='container mx-auto px-4'>
         <div className='text-center space-y-8'>

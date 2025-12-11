@@ -52,7 +52,6 @@ export default function Navbar() {
     return null;
   }
 
-  console.log(user);
   return (
     <nav className='w-full bg-transparent fixed top-0 z-50'>
       <div className='container mx-auto'>

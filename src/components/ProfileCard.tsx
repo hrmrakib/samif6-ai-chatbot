@@ -47,8 +47,6 @@ export default function ProfileCard() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [updateProfileMutation] = useUpdateProfileMutation();
 
-  console.log(user?.subscribed_plan_status);
-
   useEffect(() => {
     if (user) {
       setProfile(user);
@@ -82,12 +80,10 @@ export default function ProfileCard() {
       formData.append("playing_level", editedProfile.playing_level || "");
       formData.append("location", editedProfile.location || "");
 
-      const res = await updateProfileMutation(formData).unwrap();
-      console.log(res);
+      await updateProfileMutation(formData).unwrap();
 
       setProfile(editedProfile);
       setIsEditing(false);
-      console.log("Profile updated:", editedProfile);
     } catch (error) {
       console.error("Failed to update profile:", error);
     } finally {

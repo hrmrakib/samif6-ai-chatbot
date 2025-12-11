@@ -155,9 +155,6 @@ export default function CheckoutPage() {
       // Simulate API call to save checkout information
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Store checkout data (in real app, this would be sent to backend)
-      console.log("Checkout data:", formData);
-
       // Redirect to payment page
       router.push("/payment");
     } catch (error) {

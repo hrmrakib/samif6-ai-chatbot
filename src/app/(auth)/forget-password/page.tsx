@@ -47,7 +47,6 @@ export default function ForgotPasswordPage() {
       // Simulate API call to send reset OTP
       const res = await forgotPasswordMutation({ email }).unwrap();
 
-      console.log(res);
 
       if (res?.success) {
         toast.success(res?.message);

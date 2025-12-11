@@ -119,7 +119,6 @@ export default function ResetPasswordPage() {
         confirm_password: formData.confirmPassword,
       }).unwrap();
 
-      console.log("Password reset for:", res);
       if (res?.success) {
         setIsSuccess(true);
         router.push("/login");

@@ -52,8 +52,6 @@ export default function MembershipSection() {
         billing_cycle: billingCycle,
       });
 
-      console.log(res?.error);
-
       if (res?.data?.success) {
         window.location.href = res?.data?.checkout_url;
         return;

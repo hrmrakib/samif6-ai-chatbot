@@ -86,7 +86,6 @@ export default function ContactSection() {
 
     try {
       const res = await sendContactMutation(formData);
-      console.log(res);
 
       if (res.data?.id) {
         setIsSubmitted(true);
@@ -96,7 +95,7 @@ export default function ContactSection() {
       setTimeout(() => {
         setFormData({ name: "", email: "", message: "" });
         setIsSubmitted(false);
-      } , 3000);
+      }, 3000);
     } catch (error) {
       console.error("Submission error:", error);
       setErrors({ message: "Failed to submit form. Please try again." });
@@ -269,7 +268,7 @@ export default function ContactSection() {
                 </Button>
               </form>
 
-              {/* Additional Info */} 
+              {/* Additional Info */}
               <div className='mt-8 text-center'>
                 <p className='text-gray-400 text-sm'>
                   By submitting this form, you agree to our{" "}

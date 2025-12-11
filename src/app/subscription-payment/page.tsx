@@ -162,9 +162,6 @@ export default function PaymentPage() {
       // Simulate payment processing
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
-      // Here you would typically integrate with a payment processor like Stripe
-      console.log("Payment processed:", paymentData);
-
       // Redirect to success page
       router.push("/payment-success");
     } catch (error) {

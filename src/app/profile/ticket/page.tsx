@@ -26,8 +26,6 @@ type TicketProps = {
 export default function PurchasedTicketsPage() {
   const { data, isLoading } = useUserPurchasedTicketsQuery({});
 
-  console.log("user purchased tickets", data?.free_tickets);
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":

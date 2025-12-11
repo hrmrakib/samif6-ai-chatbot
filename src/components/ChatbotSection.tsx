@@ -223,8 +223,6 @@ export default function ChatbotSection() {
     </div>
   );
 
-  console.log("this page is ready .............");
-
   return (
     <section className='max-h-[99vh] container mx-auto  bg-gradient-to-br from-[#000000] via-[#000000] to-[#0000004c] rounded-3xl shadow-black/20 shadow-lg relative overflow-hidden cursor-default'>
       <div className='flex h-screen'>

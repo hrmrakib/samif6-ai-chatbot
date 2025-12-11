@@ -45,7 +45,6 @@ export default function UserProfileDropdown() {
   };
 
   const handleEditProfile = () => {
-    console.log("Edit profile clicked");
     // Add edit profile logic here
   };
 
@@ -60,8 +59,7 @@ export default function UserProfileDropdown() {
     );
     if (!confirm) return;
     else {
-      const res = await cancelSubscriptionMutation({});
-      console.log(res);
+      await cancelSubscriptionMutation({});
     }
   };
 

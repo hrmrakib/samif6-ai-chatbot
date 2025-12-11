@@ -215,7 +215,6 @@ export default function ChatbotSectionContent() {
       }
     } catch (error: any) {
       console.error("Error creating session:", error);
-      console.log("err", error?.data);
     } finally {
       setIsSidebarOpen(false);
       setOpen(false);
@@ -343,7 +342,6 @@ export default function ChatbotSectionContent() {
 
       // Append the error message
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
-      console.log(error);
     } finally {
       setIsLoading(false);
     }
@@ -369,9 +367,6 @@ export default function ChatbotSectionContent() {
   };
 
   const handleSelectSession = async (sessionId: string) => {
-    console.log(
-      { sessionId, currentSessionId: currentSessionId } + "handleSelectSession"
-    );
     setCurrentSessionId(sessionId);
     scrollToBottom();
     setIsSidebarOpen(false);
